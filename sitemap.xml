@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://dubraskalashart.pages.dev/</loc>
+    <lastmod>2024-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Secciones Principales (Anclas) -->
+  <url>
+    <loc>https://dubraskalashart.pages.dev/#inicio</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dubraskalashart.pages.dev/#servicios</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://dubraskalashart.pages.dev/#academia</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dubraskalashart.pages.dev/#faq</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://dubraskalashart.pages.dev/#contacto</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Imágenes (Para mejorar SEO en Google Imágenes) -->
+  <url>
+    <loc>https://dubraskalashart.pages.dev/images/banner-dubraskalash-art-chile-biobio-pestañas.png</loc>
+    <lastmod>2024-05-23</lastmod>
+  </url>
+  <url>
+    <loc>https://dubraskalashart.pages.dev/images/dubraska-web-pestañas-cejas-volumen-ruso-micropigmentacion.png</loc>
+    <lastmod>2024-05-23</lastmod>
+  </url>
+  <url>
+    <loc>https://dubraskalashart.pages.dev/images/Pinzas-y-Herramientas.png</loc>
+    <lastmod>2024-05-23</lastmod>
+  </url>
+  <url>
+    <loc>https://dubraskalashart.pages.dev/images/Preparacion-y-Limpieza.png</loc>
+    <lastmod>2024-05-23</lastmod>
+  </url>
+</urlset>

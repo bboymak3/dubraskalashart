@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Evitar indexar carpetas de sistema o librerías si es necesario (opcional)
+# Disallow: /images/
+# Disallow: /css/
+
+# Indica la ubicación de tu Sitemap
+Sitemap: https://dubraskalashart.pages.dev/sitemap.xml
