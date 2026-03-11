@@ -35,7 +35,7 @@
   <!-- Fuentes Google -->
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
   
-  <!-- Iconos RemixIcon -->
+  <!-- Iconos RemixIcon (Solo para UI general, no en servicios) -->
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
 
   <!-- Bootstrap CSS -->
@@ -82,7 +82,6 @@
       font-family: var(--font-body);
       color: var(--color-text);
       background-color: #fff;
-      /* Padding abajo para que el menú no tape el contenido */
       padding-bottom: calc(var(--bottom-nav-height) + 20px);
       overflow-x: hidden;
     }
@@ -142,7 +141,7 @@
       border: 5px solid white;
       transform: rotate(-2deg);
       transition: transform 0.5s;
-      width: 100%; /* Asegura responsividad */
+      width: 100%;
       height: auto;
     }
     .hero-banner-img:hover {
@@ -193,58 +192,79 @@
       margin: 0 auto;
     }
 
-    /* CARDS */
+    /* --- NUEVO DISEÑO DE TARJETAS DE SERVICIOS (IMAGENES) --- */
     .service-card {
       border: none;
       background: white;
-      border-radius: 20px;
-      padding: 40px 30px;
+      border-radius: 15px;
+      overflow: hidden; /* Para que la imagen redondee las esquinas superiores */
       box-shadow: 0 10px 30px rgba(0,0,0,0.05);
       transition: all 0.4s ease;
       height: 100%;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    .service-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: linear-gradient(90deg, var(--color-gold), var(--color-primary));
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.4s ease;
-      z-index: 2;
-    }
-    .service-card:hover::before {
-      transform: scaleX(1);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #f0f0f0;
     }
     .service-card:hover {
       transform: translateY(-10px);
       box-shadow: 0 15px 40px rgba(216, 27, 96, 0.15);
+      border-color: var(--color-gold);
     }
-
-    /* ICONOS */
-    .icon-box {
-      font-size: 4rem;
+    
+    .service-img-wrapper {
+      width: 100%;
+      height: 220px; /* Altura fija para uniformidad */
+      overflow: hidden;
+      position: relative;
+    }
+    .service-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .service-card:hover .service-img-wrapper img {
+      transform: scale(1.1);
+    }
+    
+    .service-body {
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    
+    .service-title {
+      font-size: 1.25rem;
       color: var(--color-primary);
+      font-weight: 700;
+      margin-bottom: 15px;
+      line-height: 1.3;
+    }
+    
+    .service-desc {
+      font-size: 0.9rem;
+      color: var(--color-text);
+      line-height: 1.6;
       margin-bottom: 20px;
-      display: inline-block;
-      background: #fff0f5;
-      width: 100px;
-      height: 100px;
-      line-height: 100px;
-      text-align: center;
-      border-radius: 50%;
+      flex-grow: 1;
+    }
+    
+    .service-btn {
+      align-self: flex-start;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-decoration: none;
+      border-bottom: 1px solid var(--color-gold);
+      padding-bottom: 2px;
       transition: all 0.3s;
     }
-    .service-card:hover .icon-box {
-      background: var(--color-primary);
-      color: white;
-      transform: rotateY(360deg);
+    .service-btn:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
 
     /* SECCIONES INFO */
@@ -280,7 +300,6 @@
       margin-bottom: 30px;
     }
     
-    /* Estilos para imagenes de Insumos y Proceso */
     .info-img-container {
       overflow: hidden;
       border-radius: 15px;
@@ -373,7 +392,7 @@
       color: white;
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      margin: -10px 5px 0; /* Levanta el botón central */
+      margin: -10px 5px 0; 
       height: calc(100% + 10px);
       box-shadow: 0 -5px 15px rgba(37, 211, 102, 0.4);
     }
@@ -381,13 +400,11 @@
       color: white;
     }
 
-    /* Ocultar menú inferior en escritorio grande */
     @media (min-width: 992px) {
       .bottom-nav { display: none; }
       body { padding-bottom: 0; }
     }
     
-    /* Modal Galeria */
     .modal-body img {
       border-radius: 10px;
       margin-bottom: 15px;
@@ -428,7 +445,6 @@
 <section class="hero-section" id="inicio">
   <div class="container position-relative" style="z-index: 2;">
     <div class="row align-items-center">
-      <!-- IMAGEN INTERCAMBIADA (ERA LA 2DA, AHORA 1RA) -->
       <div class="col-lg-6 order-lg-2 mb-5 mb-lg-0">
         <img src="images/dubraska-web-pestañas-cejas-volumen-ruso-micropigmentacion.png" alt="Servicios Pestañas y Cejas Dubraskalash" class="img-fluid hero-banner-img">
       </div>
@@ -448,7 +464,7 @@
   </div>
 </section>
 
-<!-- IMAGEN INTERCAMBIADA (ERA LA 1RA, AHORA 2DA) -->
+<!-- IMAGEN SECUNDARIA -->
 <section class="py-4 bg-light">
   <div class="container">
     <img src="images/banner-dubraskalash-art-chile-biobio-pestañas.png" alt="Banner Principal Dubraskalash Concepción" class="img-fluid rounded shadow w-100">
@@ -466,58 +482,107 @@
 
     <!-- CATEGORÍA 1: PESTAÑAS -->
     <div class="mb-5">
-      <h3 class="text-center mb-4" style="color: var(--color-primary);">Lash Design</h3>
+      <h3 class="text-center mb-5" style="color: var(--color-primary);">Extensiones de Pestañas (Lash Design)</h3>
       <div class="row g-4">
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-eye-line"></i></div>
-            <h4>Técnica Clásica</h4>
-            <p class="small text-muted mt-3">Elegancia pura. Una fibra sobre cada pestaña natural (1x1) para alargar y definir.</p>
+        
+        <!-- Servicio 1 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/pestañas-pelo-a-pelo-tecnica-clasica-santiago-chile.jpg" alt="Lash Couture Técnica Clásica">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Lash Couture: Técnica Clásica 1x1</h4>
+              <p class="service-desc">Eleva tu mirada con nuestra técnica exclusiva de pestañas pelo a pelo. Ofrece un diseño de alta costura, aplicando una extensión premium sobre cada pestaña natural con precisión quirúrgica. Logramos un efecto de elegancia atemporal y definición perfecta.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Lash%20Couture" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-leaf-line"></i></div>
-            <h4>Efecto Natural</h4>
-            <p class="small text-muted mt-3">Belleza sin esfuerzo. Juegamos con longitudes para abrir el ojo.</p>
+
+        <!-- Servicio 2 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/extensiones-de-pestañas-naturales-efecto-organico-lashista.jpg" alt="Natural Essence Efecto Natural">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Natural Essence: Efecto Natural y Orgánico</h4>
+              <p class="service-desc">Descubre la sutileza del diseño orgánico. Aporta longitud y curvatura estratégica sin comprometer la salud de tu mirada. Es la opción preferida en Chile para un look diario impecable, logrando una transición invisible entre la extensión y tu pestaña.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Natural%20Essence" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-magic-line"></i></div>
-            <h4>Efecto Rímel</h4>
-            <p class="small text-muted mt-3">Olvida el maquillaje. Simula capas de rímel con limpieza perfecta.</p>
+
+        <!-- Servicio 3 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/pestañas-efecto-rimel-negro-intenso-mirada-perfecta.jpg" alt="Mascara Look Pro Efecto Rímel">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Mascara Look Pro: Efecto Rímel y Definición</h4>
+              <p class="service-desc">Dile adiós al maquillaje diario. Logramos un acabado de pestañas maquilladas mediante el uso de fibras de mayor grosor y un negro intenso mate que define el ojo al instante. Solución ideal para mujeres activas que buscan una mirada profunda y lista 24/7.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Mascara%20Look%20Pro" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-vip-crown-line"></i></div>
-            <h4>Volumen Ruso</h4>
-            <p class="small text-muted mt-3">Densidad máxima. Abanicos artesanales (2D-6D) para impacto visual total.</p>
+
+        <!-- Servicio 4 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/pestañas-closed-fans-textura-compacta-volumen-elegante.jpg" alt="Signature Closed Fans">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Signature Closed Fans: Textura Compacta</h4>
+              <p class="service-desc">Experimenta la modernidad con nuestra técnica de abanicos cerrados. Crea una textura compacta, densa y sumamente elegante, ideal para un look sofisticado. Aporta un efecto de sombra lineal que define el párpado con máxima precisión.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Closed%20Fans" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <!-- Más servicios pestañas (Cerrados, Tecnológico, Americano) -->
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-rocket-line"></i></div>
-            <h4>Volumen Tecnológico</h4>
-            <p class="small text-muted mt-3">Fibras de avanzada y memoria de curvatura perfecta. Máxima duración.</p>
+
+        <!-- Servicio 5 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/volumen-tecnologico-pestañas-fibras-tecnologicas-alta-retencion.jpg" alt="Tecno-Lash 5G Volumen Tecnológico">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Tecno-Lash 5G: Volumen Tecnológico de Alta Retención</h4>
+              <p class="service-desc">Llegó la revolución con fibras tecnológicas de última generación para alcanzar una máxima densidad con un peso pluma que protege tu pestaña natural. Es líder en Chile por su alta retención y rapidez de aplicación, ofreciendo un look tupido pero extremadamente ligero.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Tecno-Lash%205G" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-star-smile-line"></i></div>
-            <h4>Volumen Americano</h4>
-            <p class="small text-muted mt-3">Estilo audaz y lleno. Mezcla de clásico y volumen al estilo USA.</p>
+
+        <!-- Servicio 6 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/pestañas-volumen-americano-estilo-foxy-eyes-texturizado.jpg" alt="American Star Volume">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">American Star Volume: Volumen Americano Audaz</h4>
+              <p class="service-desc">Un diseño irregular y lleno de textura que rompe los esquemas tradicionales. Combinamos diferentes longitudes y curvaturas (efecto spikes) para crear un volumen con movimiento vibrante y personalidad única. Perfecto para un look impactante y moderno.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20American%20Star%20Volume" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-windy-line"></i></div>
-            <h4>Closed Fans</h4>
-            <p class="small text-muted mt-3">Textura sofisticada. Abanicos que se abren en la punta para volumen ligero.</p>
+
+        <!-- Servicio 7 -->
+        <div class="col-md-6 col-lg-4 mx-auto"> <!-- Centrado visualmente si sobra espacio -->
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/pestañas-volumen-ruso-abanicos-artesanales-handmade-pro.jpg" alt="Royal Russian Volume">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Royal Russian Volume: Volumen Ruso Handmade</h4>
+              <p class="service-desc">La joya de la corona. Logramos una densidad máxima mediante abanicos artesanales hechos a mano (Handmade). Ofrece un efecto glamuroso, extra tupido y profundamente oscuro. Es el servicio definitivo para un volumen total, sofisticado y con la mejor retención de Chile.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Royal%20Russian%20Volume" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -530,48 +595,76 @@
 
     <!-- CATEGORÍA 2: PMU Y CEJAS -->
     <div class="mt-5 pt-5">
-      <h3 class="text-center mb-4" style="color: var(--color-gold);">Micropigmentación & Cejas</h3>
+      <h3 class="text-center mb-5" style="color: var(--color-gold);">Cejas, Rostro y Micropigmentación</h3>
       <div class="row g-4">
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-pencil-ruler-2-line"></i></div>
-            <h4>Perfilado de Cejas</h4>
-            <p class="small text-muted mt-3">Diseño según tu morfología. Depilación de precisión y tinte.</p>
+        
+        <!-- Servicio 8 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/perfilado-de-cejas-diseño-visagismo-profesional-chile.jpg" alt="Brow Architecture Perfilado">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Brow Architecture: Perfilado y Visagismo</h4>
+              <p class="service-desc">El arte del visagismo profesional. Esculpimos el marco perfecto para tu mirada mediante un diseño simétrico basado en la morfología de tu rostro. No es una simple depilación; es un estudio anatómico donde definimos ángulos y grosores para resaltar tus facciones.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Brow%20Architecture" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-knife-blood-line"></i></div>
-            <h4>Laborios (PMU)</h4>
-            <p class="small text-muted mt-3">Efecto acuarela o delineado. Recupera color y volumen en labios.</p>
+
+        <!-- Servicio 9 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/micropigmentacion-de-labios-efecto-acuarela-lip-blush.jpg" alt="Luxury Lip Blush">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Luxury Lip Blush: Micropigmentación de Labios</h4>
+              <p class="service-desc">Transforma tus labios con un delicado efecto acuarela. Ofrece color, definición y simetría. Realza tu tono natural, corrige imperfecciones y define el arco de cupido con resultados de alta gama. Olvida el labial y luce labios perfectos 24/7.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Luxury%20Lip%20Blush" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-brush-line"></i></div>
-            <h4>Micro Cejas</h4>
-            <p class="small text-muted mt-3">El marco perfecto. Microblading o Microshading para un look natural.</p>
+
+        <!-- Servicio 10 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/microblading-cejas-pelo-a-pelo-maquillaje-permanente.jpg" alt="Master Microblading">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Master Microblading: Cejas Hiperrealistas</h4>
+              <p class="service-desc">Recupera la densidad de tus cejas. Especialistas en reconstrucción pelo a pelo de alta precisión, creamos trazos ultra finos que imitan el crecimiento natural del vello. Ideal para rellenar huecos o reconstruir cejas con un realismo asombroso.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Master%20Microblading" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="service-card text-center">
-            <div class="icon-box"><i class="ri-sparkling-2-line"></i></div>
-            <h4>Depilación Facial</h4>
-            <p class="small text-muted mt-3">Acabado suave. Eliminación de vello facial con técnicas respetuosas.</p>
+
+        <!-- Servicio 11 -->
+        <div class="col-md-6 col-lg-4 mx-auto">
+          <div class="service-card">
+            <div class="service-img-wrapper">
+              <img src="images/depilacion-facial-piel-suave-perfeccion-rostro-estetica.jpg" alt="Silk Face Finish Depilación">
+            </div>
+            <div class="service-body">
+              <h4 class="service-title">Silk Face Finish: Depilación Facial Profesional</h4>
+              <p class="service-desc">Logra una piel radiante con técnicas de depilación facial delicadas que eliminan el vello no deseado respetando la integridad de tu piel. Deja un acabado extremadamente suave, limpio y luminoso, preparando tu rostro para que el maquillaje se deslice perfectamente.</p>
+              <a href="https://wa.me/56946510308?text=Hola,%20me%20interesa%20Silk%20Face%20Finish" class="service-btn">Agendar</a>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
 </section>
 
-<!-- INSUMOS Y ACADEMIA (CON IMÁGENES ESTRATÉGICAS) -->
+<!-- INSUMOS Y ACADEMIA -->
 <section class="py-5 bg-light position-relative" id="academia">
   <div class="container py-5">
-    <!-- Insumos con Imagen Herramientas -->
+    <!-- Insumos -->
     <div class="info-card d-flex flex-column flex-md-row align-items-center gap-4">
       <div class="col-md-5 info-img-container">
-        <!-- IMAGEN 3: PINZAS Y HERRAMIENTAS -->
         <img src="images/Pinzas-y-Herramientas.png" alt="Herramientas Profesionales TopLine">
       </div>
       <div class="col-md-7">
@@ -584,10 +677,9 @@
       </div>
     </div>
 
-    <!-- Academia con Imagen Decorativa -->
+    <!-- Academia -->
     <div class="info-card d-flex flex-column flex-md-row-reverse align-items-center gap-4">
       <div class="col-md-5 info-img-container">
-        <!-- IMAGEN 4: DECORATIVA / RECTANGLE -->
         <img src="images/Rectangle.png" alt="Academia Dubraskalash">
       </div>
       <div class="col-md-7">
@@ -601,13 +693,12 @@
   </div>
 </section>
 
-<!-- FAQ CON IMAGEN DE PROCESO -->
+<!-- FAQ -->
 <section class="py-5" id="faq">
   <div class="container py-5">
     <div class="row align-items-center mb-5">
       <div class="col-lg-5 mb-4 mb-lg-0">
-        <!-- IMAGEN 5: PREPARACION Y LIMPIEZA -->
-        <img src="images/Preparacion-y-Limpieza.png" alt="Proceso de Higiene y Preparación" class="img-fluid rounded-4 shadow">
+        <img src="images/Preparacion-y-Limpieza.png" alt="Proceso de Higiene" class="img-fluid rounded-4 shadow">
       </div>
       <div class="col-lg-7">
         <div class="section-header text-start">
@@ -615,7 +706,6 @@
           <h2>Preguntas Frecuentes</h2>
           <div class="divider-gold ms-0"></div>
         </div>
-        
         <div class="accordion" id="faqAccordion">
           <div class="accordion-item">
             <h2 class="accordion-header">
@@ -714,21 +804,16 @@
   </div>
 </footer>
 
-<!-- MENÚ INFERIOR (BOTTOM NAV) -->
+<!-- MENÚ INFERIOR -->
 <div class="bottom-nav">
-  <!-- Botón 1: Inicio -->
   <a href="#inicio" class="nav-item-bottom">
     <i class="ri-home-5-line"></i>
     <span>Inicio</span>
   </a>
-
-  <!-- Botón 2: Galería (Abre Modal) -->
   <a href="#" class="nav-item-bottom" data-bs-toggle="modal" data-bs-target="#galleryModal">
     <i class="ri-image-line"></i>
     <span>Galería</span>
   </a>
-
-  <!-- Botón 3: WhatsApp (Destacado) -->
   <a href="https://wa.me/56946510308" class="nav-item-bottom whatsapp-btn">
     <i class="ri-whatsapp-line"></i>
     <span>WhatsApp</span>
