@@ -136,13 +136,14 @@
       line-height: 1.2;
       margin-bottom: 20px;
     }
-    /* Imagen del Banner solicitado */
     .hero-banner-img {
       border-radius: 20px;
       box-shadow: 0 15px 40px rgba(0,0,0,0.1);
       border: 5px solid white;
       transform: rotate(-2deg);
       transition: transform 0.5s;
+      width: 100%; /* Asegura responsividad */
+      height: auto;
     }
     .hero-banner-img:hover {
       transform: rotate(0deg);
@@ -177,13 +178,19 @@
       color: white;
     }
 
-    /* IMAGEN ESTRATÉGICA 2 (Servicios) */
-    .strategic-img-services {
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    /* SECCIÓN BANNER INFORMATIVO CENTRAL */
+    .banner-info-section {
+      padding: 40px 0;
+      background-color: #fff;
+      overflow: hidden;
+    }
+    .banner-info-img {
       width: 100%;
       height: auto;
-      object-fit: cover;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: block;
+      margin: 0 auto;
     }
 
     /* CARDS */
@@ -374,7 +381,7 @@
       color: white;
     }
 
-    /* Ocultar menú inferior en escritorio grande (opcional, pero lo dejo visible para tablets) */
+    /* Ocultar menú inferior en escritorio grande */
     @media (min-width: 992px) {
       .bottom-nav { display: none; }
       body { padding-bottom: 0; }
@@ -421,9 +428,9 @@
 <section class="hero-section" id="inicio">
   <div class="container position-relative" style="z-index: 2;">
     <div class="row align-items-center">
+      <!-- IMAGEN INTERCAMBIADA (ERA LA 2DA, AHORA 1RA) -->
       <div class="col-lg-6 order-lg-2 mb-5 mb-lg-0">
-        <!-- IMAGEN 1: BANNER PRINCIPAL -->
-        <img src="images/banner-dubraskalash-art-chile-biobio-pestañas.png" alt="Dubraskalash Banner Concepción" class="img-fluid hero-banner-img">
+        <img src="images/dubraska-web-pestañas-cejas-volumen-ruso-micropigmentacion.png" alt="Servicios Pestañas y Cejas Dubraskalash" class="img-fluid hero-banner-img">
       </div>
       <div class="col-lg-6 order-lg-1">
         <span class="badge bg-light text-dark border mb-3 px-3 py-2 rounded-pill">Speaker & Judge Internacional 🏆</span>
@@ -441,11 +448,10 @@
   </div>
 </section>
 
-<!-- IMAGEN ESTRATÉGICA 2 (SERVICIOS) -->
+<!-- IMAGEN INTERCAMBIADA (ERA LA 1RA, AHORA 2DA) -->
 <section class="py-4 bg-light">
   <div class="container">
-    <!-- IMAGEN 2: WEB PESTAÑAS (Se muestra antes de entrar a detalle) -->
-    <img src="images/dubraska-web-pestañas-cejas-volumen-ruso-micropigmentacion.png" alt="Servicios de Pestañas y Cejas" class="strategic-img-services">
+    <img src="images/banner-dubraskalash-art-chile-biobio-pestañas.png" alt="Banner Principal Dubraskalash Concepción" class="img-fluid rounded shadow w-100">
   </div>
 </section>
 
@@ -512,6 +518,13 @@
             <p class="small text-muted mt-3">Textura sofisticada. Abanicos que se abren en la punta para volumen ligero.</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- NUEVO BANNER CENTRAL INFORMATIVO -->
+    <div class="banner-info-section">
+      <div class="container">
+        <img src="images/cejas-pestañas-dubraskalashart-depilacion-efecto-natural-volumen-ruso-americano-dimel-perfilado-de-cejas-chile.png" alt="Banner Informativo Servicios Dubraskalash" class="banner-info-img">
       </div>
     </div>
 
