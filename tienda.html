@@ -28,8 +28,10 @@
     .sidebar-cat a { text-decoration: none; color: var(--color-text); font-size: 0.95rem; transition: all 0.3s; display: flex; justify-content: space-between; align-items: center; }
     .sidebar-cat a:hover, .sidebar-cat a.active { color: var(--color-primary); font-weight: 600; }
     .sidebar-cat .cat-count { background: #f0f0f0; padding: 2px 10px; border-radius: 15px; font-size: 0.8rem; }
+    .sidebar-group-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #999; font-weight: 700; margin-top: 15px; margin-bottom: 5px; padding-left: 0; }
     .search-input { border: 1px solid #e0e0e0; border-radius: 25px; padding: 10px 20px 10px 45px; width: 100%; font-size: 0.9rem; transition: border-color 0.3s; }
     .search-input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(216,27,96,0.1); }
+    .product-card .iva-note { font-size: 0.7rem; color: #999; font-style: italic; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -69,11 +71,18 @@
 <!-- PAGE HERO -->
 <section class="page-hero">
   <div class="container">
-    <span class="badge bg-light text-dark border mb-3 px-3 py-2 rounded-pill" style="font-size:0.85rem;"><i class="ri-store-2-line me-1"></i>Nuestra Tienda</span>
+    <span class="badge bg-light text-dark border mb-3 px-3 py-2 rounded-pill" style="font-size:0.85rem;"><i class="ri-store-2-line me-1"></i>Top Line Profesional</span>
     <h1>Tienda</h1>
-    <p class="lead">Servicios profesionales, insumos de calidad y formación de excelencia</p>
+    <p class="lead">Experimenta el lujo y la comodidad de nuestros productos premium</p>
   </div>
 </section>
+
+<!-- IVA NOTICE -->
+<div class="container mt-4">
+  <div class="alert alert-info py-2 px-3 mb-0" style="font-size:0.85rem;border-radius:10px;background:#f0f4ff;border-color:#d0deff;color:#3a5ba0;">
+    <i class="ri-information-line me-2"></i><strong>Nota:</strong> El IVA no está incluido en el precio final de nuestros productos.
+  </div>
+</div>
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb-custom">
@@ -94,14 +103,10 @@
             <i class="ri-search-line position-absolute" style="left:15px;top:50%;transform:translateY(-50%);color:#999;"></i>
             <input type="text" class="search-input" id="searchInput" placeholder="Buscar productos..." oninput="Shop.filter()">
           </div>
-          <!-- Categories -->
+          <!-- Categories - rendered by JS -->
           <div class="bg-white p-4 rounded-3 mb-4" style="box-shadow:0 2px 10px rgba(0,0,0,0.05);">
             <h6 class="fw-bold mb-3"><i class="ri-layout-grid-line me-2"></i>Categorías</h6>
-            <div class="sidebar-cat"><a href="#" class="active" onclick="Shop.setCategory('all')"><span>Todos los productos</span><span class="cat-count" id="count-all">17</span></a></div>
-            <div class="sidebar-cat"><a href="#" onclick="Shop.setCategory('pestañas')"><span>Extensiones de Pestañas</span><span class="cat-count">7</span></a></div>
-            <div class="sidebar-cat"><a href="#" onclick="Shop.setCategory('cejas-pmu')"><span>Cejas & PMU</span><span class="cat-count">4</span></a></div>
-            <div class="sidebar-cat"><a href="#" onclick="Shop.setCategory('insumos')"><span>Insumos</span><span class="cat-count">3</span></a></div>
-            <div class="sidebar-cat"><a href="#" onclick="Shop.setCategory('cursos')"><span>Cursos</span><span class="cat-count">3</span></a></div>
+            <div id="sidebar-categories"></div>
           </div>
           <!-- WhatsApp CTA -->
           <div class="p-4 rounded-3 text-center text-white" style="background:linear-gradient(135deg,#25D366,#128C7E);">
@@ -118,7 +123,7 @@
         <!-- Toolbar -->
         <div class="shop-toolbar d-flex flex-wrap justify-content-between align-items-center">
           <div>
-            <span class="fw-bold" id="productCount">17</span> productos
+            <span class="fw-bold" id="productCount">0</span> productos
           </div>
           <div class="d-flex gap-2 align-items-center">
             <label class="small text-muted">Ordenar:</label>
@@ -132,13 +137,8 @@
           </div>
         </div>
 
-        <!-- Mobile Category Filters -->
-        <div class="d-flex gap-2 overflow-auto mb-4 d-lg-none pb-2" style="white-space:nowrap;">
-          <button class="category-filter active" onclick="Shop.setCategory('all')">Todos</button>
-          <button class="category-filter" onclick="Shop.setCategory('pestañas')">Pestañas</button>
-          <button class="category-filter" onclick="Shop.setCategory('cejas-pmu')">Cejas & PMU</button>
-          <button class="category-filter" onclick="Shop.setCategory('insumos')">Insumos</button>
-          <button class="category-filter" onclick="Shop.setCategory('cursos')">Cursos</button>
+        <!-- Mobile Category Filters - rendered by JS -->
+        <div class="d-flex gap-2 overflow-auto mb-4 d-lg-none pb-2" style="white-space:nowrap;" id="mobile-category-filters">
         </div>
 
         <!-- Mobile Search -->
@@ -184,10 +184,10 @@
         <p><a href="contactos.html">Contacto</a></p>
       </div>
       <div class="col-lg-3 col-md-4 mb-3">
-        <h5>Servicios</h5>
-        <p><a href="tienda.html?cat=pestañas">Extensiones de Pestañas</a></p>
-        <p><a href="tienda.html?cat=cejas-pmu">Cejas & PMU</a></p>
-        <p><a href="tienda.html?cat=insumos">Insumos</a></p>
+        <h5>Productos</h5>
+        <p><a href="tienda.html?cat=adhesivos">Adhesivos</a></p>
+        <p><a href="tienda.html?cat=fibras">Fibras Tecnológicas</a></p>
+        <p><a href="tienda.html?cat=herramientas">Herramientas</a></p>
         <p><a href="tienda.html?cat=cursos">Cursos</a></p>
       </div>
       <div class="col-lg-3 col-md-4 mb-3">
@@ -198,7 +198,7 @@
       </div>
     </div>
     <div class="footer-bottom text-center">
-      <p class="mb-1">&copy; 2024 Dubraskalash.art. Todos los derechos reservados.</p>
+      <p class="mb-1">&copy; 2025 Dubraskalash.art. Todos los derechos reservados.</p>
       <p class="mb-0" style="font-size:0.8rem;"><a href="politica-privacidad.html">Política de Privacidad</a> · <a href="preguntas-frecuentes.html">Preguntas Frecuentes</a></p>
     </div>
   </div>
@@ -248,11 +248,52 @@ const Shop = {
   currentCategory: 'all',
   
   init() {
+    this.renderSidebar();
+    this.renderMobileFilters();
     // Check URL params for category
     const params = new URLSearchParams(window.location.search);
     const cat = params.get('cat');
     if (cat) this.setCategory(cat);
     else this.render();
+  },
+
+  renderSidebar() {
+    const container = document.getElementById('sidebar-categories');
+    if (!container) return;
+
+    // Count products per category
+    const counts = {};
+    PRODUCTS.forEach(p => {
+      counts[p.category] = (counts[p.category] || 0) + 1;
+    });
+
+    let html = `<div class="sidebar-cat"><a href="#" class="active" onclick="Shop.setCategory('all')"><span>Todos los productos</span><span class="cat-count">${PRODUCTS.length}</span></a></div>`;
+
+    for (const [group, cats] of Object.entries(CATEGORY_GROUPS)) {
+      html += `<div class="sidebar-group-title">${group}</div>`;
+      cats.forEach(cat => {
+        if (counts[cat]) {
+          html += `<div class="sidebar-cat"><a href="#" onclick="Shop.setCategory('${cat}')"><span>${CATEGORIES[cat]}</span><span class="cat-count">${counts[cat]}</span></a></div>`;
+        }
+      });
+    }
+
+    container.innerHTML = html;
+  },
+
+  renderMobileFilters() {
+    const container = document.getElementById('mobile-category-filters');
+    if (!container) return;
+
+    let html = `<button class="category-filter active" onclick="Shop.setCategory('all')">Todos</button>`;
+    
+    for (const [group, cats] of Object.entries(CATEGORY_GROUPS)) {
+      cats.forEach(cat => {
+        html += `<button class="category-filter" onclick="Shop.setCategory('${cat}')">${CATEGORIES[cat]}</button>`;
+      });
+    }
+
+    container.innerHTML = html;
   },
 
   setCategory(cat) {
@@ -309,6 +350,10 @@ const Shop = {
     }
     if (emptyEl) emptyEl.style.display = 'none';
 
+    // Determine if current category is a product (not service/curso)
+    const productCategories = CATEGORY_GROUPS['Productos'];
+    const isProductCategory = this.currentCategory === 'all' || productCategories.includes(this.currentCategory);
+
     grid.innerHTML = products.map(p => `
       <div class="col-sm-6 col-lg-4">
         <div class="product-card">
@@ -319,6 +364,7 @@ const Shop = {
           <div class="product-body">
             <h5 class="product-name">${p.name}</h5>
             <div class="product-price">$${p.price.toLocaleString('es-CL')}</div>
+            ${isProductCategory ? '<div class="iva-note">Precio sin IVA</div>' : ''}
             <p class="product-desc">${p.desc}</p>
             <div class="product-actions">
               <button class="btn-add-cart" onclick="Cart.addItem(${p.id})">

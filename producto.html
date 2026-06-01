@@ -109,10 +109,10 @@
         <p><a href="contactos.html">Contacto</a></p>
       </div>
       <div class="col-lg-3 col-md-4 mb-3">
-        <h5>Servicios</h5>
-        <p><a href="tienda.html?cat=pestañas">Extensiones de Pestañas</a></p>
-        <p><a href="tienda.html?cat=cejas-pmu">Cejas & PMU</a></p>
-        <p><a href="tienda.html?cat=insumos">Insumos</a></p>
+        <h5>Productos</h5>
+        <p><a href="tienda.html?cat=adhesivos">Adhesivos</a></p>
+        <p><a href="tienda.html?cat=fibras">Fibras Tecnológicas</a></p>
+        <p><a href="tienda.html?cat=herramientas">Herramientas</a></p>
         <p><a href="tienda.html?cat=cursos">Cursos</a></p>
       </div>
       <div class="col-lg-3 col-md-4 mb-3">
@@ -123,7 +123,7 @@
       </div>
     </div>
     <div class="footer-bottom text-center">
-      <p class="mb-1">&copy; 2024 Dubraskalash.art. Todos los derechos reservados.</p>
+      <p class="mb-1">&copy; 2025 Dubraskalash.art. Todos los derechos reservados.</p>
       <p class="mb-0" style="font-size:0.8rem;"><a href="politica-privacidad.html">Política de Privacidad</a> · <a href="preguntas-frecuentes.html">Preguntas Frecuentes</a></p>
     </div>
   </div>
@@ -186,23 +186,83 @@ function renderProduct() {
   document.getElementById('breadcrumb-product').textContent = p.name;
 
   const categoryFeatures = {
-    'pestañas': [
+    'adhesivos': [
+      { icon: 'ri-truck-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Envío a todo Chile' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Garantía de calidad' },
+      { icon: 'ri-customer-service-2-line', color: '#1565c0', bg: '#e3f2fd', text: 'Asesoría técnica incluida' }
+    ],
+    'liquidos': [
+      { icon: 'ri-flask-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Fórmula profesional' },
+      { icon: 'ri-shield-check-line', color: '#e65100', bg: '#fff3e0', text: 'Seguro para uso profesional' },
+      { icon: 'ri-award-line', color: '#c62828', bg: '#ffebee', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'herramientas': [
+      { icon: 'ri-tools-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Acero inoxidable quirúrgico' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Garantía de calidad' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'lashes': [
+      { icon: 'ri-eye-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Fibras de alta calidad' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Múltiples curvaturas' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'fibras': [
+      { icon: 'ri-rocket-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Tecnología de última generación' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Alta retención' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Peso pluma' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'volumen': [
+      { icon: 'ri-eye-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Volumen profesional' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Múltiples curvaturas MIX' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'fibras-u': [
+      { icon: 'ri-rocket-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Tecnología avanzada' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Fibras U de alta retención' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'especiales': [
+      { icon: 'ri-star-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Producto especializado' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Resultados profesionales' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'white-spike': [
+      { icon: 'ri-sparkling-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Colores vibrantes' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Efecto White Spike' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'fibras-color': [
+      { icon: 'ri-palette-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Colores disponibles' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Múltiples curvaturas' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'cilios': [
+      { icon: 'ri-rocket-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Tecnología láser' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine Profesional' },
+      { icon: 'ri-palette-line', color: '#c62828', bg: '#ffebee', text: '8 colores disponibles' },
+      { icon: 'ri-truck-line', color: '#1565c0', bg: '#e3f2fd', text: 'Envío a todo Chile' }
+    ],
+    'servicios-pestañas': [
       { icon: 'ri-shield-check-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Productos premium de alta calidad' },
       { icon: 'ri-time-line', color: '#e65100', bg: '#fff3e0', text: 'Duración de 3 a 5 semanas' },
       { icon: 'ri-heart-pulse-line', color: '#c62828', bg: '#ffebee', text: 'Seguro para pestañas naturales' },
       { icon: 'ri-customer-service-2-line', color: '#1565c0', bg: '#e3f2fd', text: 'Incluye consulta personalizada' }
     ],
-    'cejas-pmu': [
+    'servicios-cejas': [
       { icon: 'ri-palette-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Pigmentos de alta calidad' },
       { icon: 'ri-time-line', color: '#e65100', bg: '#fff3e0', text: 'Resultado duradero 1-3 años' },
       { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Técnicas seguras e higiénicas' },
       { icon: 'ri-refresh-line', color: '#1565c0', bg: '#e3f2fd', text: 'Retoque incluido' }
-    ],
-    'insumos': [
-      { icon: 'ri-truck-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Envío a todo Chile' },
-      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine oficial' },
-      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Garantía de calidad' },
-      { icon: 'ri-customer-service-2-line', color: '#1565c0', bg: '#e3f2fd', text: 'Asesoría técnica incluida' }
     ],
     'cursos': [
       { icon: 'ri-graduation-cap-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Certificación incluida' },
@@ -212,7 +272,10 @@ function renderProduct() {
     ]
   };
 
-  const features = categoryFeatures[p.category] || categoryFeatures['pestañas'];
+  const productCategories = CATEGORY_GROUPS['Productos'];
+  const isProduct = productCategories.includes(p.category);
+
+  const features = categoryFeatures[p.category] || categoryFeatures['adhesivos'];
 
   document.getElementById('productDetail').innerHTML = `
     <div class="col-lg-6">
@@ -224,6 +287,7 @@ function renderProduct() {
       <div class="mb-4">
         <span style="font-size:2rem;color:var(--color-primary);font-weight:700;">$${p.price.toLocaleString('es-CL')}</span>
         <span class="text-muted ms-2">CLP</span>
+        ${isProduct ? '<div style="font-size:0.8rem;color:#999;margin-top:4px;font-style:italic;">Precio sin IVA</div>' : ''}
       </div>
       <p style="font-size:1.05rem;line-height:1.8;color:var(--color-text);" class="mb-4">${p.desc}</p>
       
