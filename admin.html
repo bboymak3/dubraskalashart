@@ -441,6 +441,84 @@
 const API = '/api';
 let SITE_IMAGES = []; // Loaded dynamically from R2
 
+// ============================================
+// IMAGE OPTIMIZATION (client-side)
+// Converts to WebP, resizes if > 1200px, compresses to 80% quality
+// ============================================
+const ImageOptimizer = {
+  MAX_WIDTH: 1200,
+  MAX_HEIGHT: 1200,
+  QUALITY: 0.80, // 80% quality - barely noticeable, much smaller
+
+  async optimize(file) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        img.onload = () => {
+          // Calculate new dimensions
+          let { width, height } = img;
+          const needsResize = width > this.MAX_WIDTH || height > this.MAX_HEIGHT;
+
+          if (needsResize) {
+            const ratio = Math.min(this.MAX_WIDTH / width, this.MAX_HEIGHT / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          // Draw on canvas
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to WebP
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                // WebP not supported, fallback to JPEG
+                canvas.toBlob(
+                  (jpegBlob) => {
+                    if (!jpegBlob) { reject(new Error('No se pudo optimizar la imagen')); return; }
+                    const optimizedFile = new File([jpegBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+                    resolve({ file: optimizedFile, originalSize: file.size, optimizedSize: jpegBlob.size, width, height, format: 'jpeg' });
+                  },
+                  'image/jpeg',
+                  this.QUALITY
+                );
+              } else {
+                const optimizedFile = new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
+                resolve({ file: optimizedFile, originalSize: file.size, optimizedSize: blob.size, width, height, format: 'webp' });
+              }
+            },
+            'image/webp',
+            this.QUALITY
+          );
+        };
+        img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+      reader.readAsDataURL(file);
+    });
+  },
+
+  formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  },
+
+  savingsPercent(original, optimized) {
+    const pct = Math.round((1 - optimized / original) * 100);
+    return pct > 0 ? `-${pct}%` : `+${Math.abs(pct)}%`;
+  }
+};
+
 async function loadR2Images() {
   try {
     const resp = await fetch(`${API}/r2-images`);
@@ -730,8 +808,12 @@ const AdminProducts = {
     const file = event.target.files[0];
     if (!file) return;
     try {
+      // Optimize image before upload
+      const result = await ImageOptimizer.optimize(file);
+      console.log(`Imagen optimizada: ${ImageOptimizer.formatSize(result.originalSize)} → ${ImageOptimizer.formatSize(result.optimizedSize)} (${ImageOptimizer.savingsPercent(result.originalSize, result.optimizedSize)}) ${result.width}x${result.height} ${result.format.toUpperCase()}`);
+
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('image', result.file);
       const resp = await fetch(`${API}/upload`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${AdminAuth.token}` },
@@ -746,7 +828,7 @@ const AdminProducts = {
         alert('Error: ' + (data.error || 'No se pudo subir'));
       }
     } catch(e) {
-      alert('Error de conexión al subir imagen');
+      alert('Error: ' + (e.message || 'Error de conexión al subir imagen'));
     }
     event.target.value = '';
   },
@@ -982,17 +1064,24 @@ const AdminImages = {
     const file = event.target.files[0];
     if (!file) return;
     try {
+      // Optimize image before upload
+      const result = await ImageOptimizer.optimize(file);
+      const savingsInfo = `${ImageOptimizer.formatSize(result.originalSize)} → ${ImageOptimizer.formatSize(result.optimizedSize)} (${ImageOptimizer.savingsPercent(result.originalSize, result.optimizedSize)})`;
+
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('image', result.file);
       const resp = await fetch(`${API}/upload`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${AdminAuth.token}` },
         body: formData
       });
       const data = await resp.json();
-      if (data.success) { alert('Imagen subida a R2! URL: ' + data.url); this.render(); }
+      if (data.success) {
+        alert(`Imagen subida a R2!\n\nOptimizada: ${savingsInfo}\nResolución: ${result.width}x${result.height}\nFormato: ${result.format.toUpperCase()}\n\nURL: ${data.url}`);
+        this.render();
+      }
       else { alert('Error: ' + (data.error || '')); }
-    } catch(e) { alert('Error de conexión'); }
+    } catch(e) { alert('Error: ' + (e.message || 'Error de conexión')); }
     event.target.value = '';
   }
 };
