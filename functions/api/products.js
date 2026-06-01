@@ -3,7 +3,57 @@
  * GET: List products (with filters)
  * POST: Create product (auth required)
  */
-import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../lib.js';
+
+// === SHARED UTILITIES (inline) ===
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+  });
+}
+
+function errorResponse(message, status = 400) {
+  return jsonResponse({ error: message }, status);
+}
+
+function handleOptions() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    }
+  });
+}
+
+async function validateAuth(request, db) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { valid: false, error: 'Authorization required' };
+  }
+  const token = authHeader.slice(7);
+  if (!token || token.length < 10) {
+    return { valid: false, error: 'Invalid token' };
+  }
+  try {
+    const session = await db.prepare(
+      "SELECT * FROM sessions WHERE token = ? AND expires_at > datetime('now')"
+    ).bind(token).first();
+    if (!session) {
+      return { valid: false, error: 'Session expired. Please login again.' };
+    }
+    return { valid: true, token };
+  } catch (e) {
+    return { valid: false, error: 'Auth error: ' + e.message };
+  }
+}
+// === END SHARED UTILITIES ===
 
 export async function onRequestGet(context) {
   const { request, env } = context;

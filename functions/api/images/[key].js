@@ -2,7 +2,31 @@
  * Image Serving API - /api/images/:key
  * GET: Serve image from R2
  */
-import { errorResponse, handleOptions } from '../../../lib.js';
+
+// === SHARED UTILITIES (inline) ===
+function errorResponse(message, status = 400) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+  });
+}
+
+function handleOptions() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    }
+  });
+}
+// === END SHARED UTILITIES ===
 
 export async function onRequestGet(context) {
   const { env, params } = context;
