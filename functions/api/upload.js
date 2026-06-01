@@ -2,7 +2,7 @@
  * Upload API - /api/upload
  * POST: Upload image to R2 (auth required)
  */
-import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../_lib.js';
+import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../lib.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;

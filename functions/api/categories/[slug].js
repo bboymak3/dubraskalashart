@@ -3,7 +3,7 @@
  * PUT: Update category (auth required)
  * DELETE: Delete category (auth required)
  */
-import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../../_lib.js';
+import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../../lib.js';
 
 export async function onRequestPut(context) {
   const { request, env, params } = context;

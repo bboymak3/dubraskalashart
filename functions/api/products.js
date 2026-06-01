@@ -3,7 +3,7 @@
  * GET: List products (with filters)
  * POST: Create product (auth required)
  */
-import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../_lib.js';
+import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../lib.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;

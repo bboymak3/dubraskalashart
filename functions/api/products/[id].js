@@ -4,7 +4,7 @@
  * PUT: Update product (auth required)
  * DELETE: Delete product (auth required)
  */
-import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../../_lib.js';
+import { jsonResponse, errorResponse, handleOptions, validateAuth } from '../../../lib.js';
 
 export async function onRequestGet(context) {
   const { request, env, params } = context;

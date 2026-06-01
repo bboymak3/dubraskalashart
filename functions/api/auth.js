@@ -2,7 +2,7 @@
  * Auth API - /api/auth
  * Handles login, setup, password change, session management
  */
-import { jsonResponse, errorResponse, handleOptions, validateAuth, hashPassword, verifyPassword, generateToken, ensureTables, seedData } from '../_lib.js';
+import { jsonResponse, errorResponse, handleOptions, validateAuth, hashPassword, verifyPassword, generateToken, ensureTables, seedData } from '../lib.js';
 
 // Login: creates a session token
 async function login(request, db) {

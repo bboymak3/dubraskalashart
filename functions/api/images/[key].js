@@ -2,7 +2,7 @@
  * Image Serving API - /api/images/:key
  * GET: Serve image from R2
  */
-import { errorResponse, handleOptions } from '../../../_lib.js';
+import { errorResponse, handleOptions } from '../../../lib.js';
 
 export async function onRequestGet(context) {
   const { env, params } = context;
