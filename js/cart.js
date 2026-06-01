@@ -1,86 +1,51 @@
 /**
  * Dubraskalash.art - Shopping Cart System
  * Uses localStorage for persistence across pages
- * Last updated: 2026-06-01T19:23:12.338Z
+ * Products loaded from D1 API with localStorage fallback
  */
 
-const PRODUCTS = [
-  { id: 1, name: 'Adhesivo Transparente', price: 29990, category: 'adhesivos', image: 'images/liquidos-preparacion-pestañas.jpg', desc: 'Adhesivo transparente profesional. Temperatura 22-27Â°C, Humedad 50-60%, RetenciÃ³n 30-45 dÃ­as, ConservaciÃ³n 5-8Â°C, Secado 0.5 segundos.' },
-  { id: 2, name: 'Adhesivo Negro (Alta Humedad)', price: 29990, category: 'adhesivos', image: 'images/adhesivo-profesional-pestaÃ±as.jpg', desc: 'Adhesivo negro para ambientes de alta humedad. Temp 22-27Â°C, Humedad 50-60%, RetenciÃ³n 30-45 dÃ­as, Secado 0.5 seg.' },
-  { id: 3, name: 'Adhesivo Negro (Baja Humedad)', price: 29990, category: 'adhesivos', image: 'images/adhesivo-profesional-pestaÃ±as.jpg', desc: 'Adhesivo negro bajo en vapores. Temp 22-27Â°C, Humedad 38-50%, RetenciÃ³n 30-60 dÃ­as. Viscosidad extra ligera, 50% Butyl / 50% Cyanoacrylate.' },
-  { id: 4, name: 'Remover de Extensiones', price: 15000, category: 'adhesivos', image: 'images/liquidos-preparacion-pestaÃ±as.jpg', desc: 'Formulado cuidadosamente para remover suavemente las extensiones de pestaÃ±as sin daÃ±ar las pestaÃ±as naturales. Frasco de 20 gr.' },
-  { id: 5, name: 'Lash Shampoo', price: 10000, category: 'liquidos', image: 'images/liquidos-preparacion-pestaÃ±as.jpg', desc: 'FÃ³rmula Ãºnica para cuidar y realzar la belleza de tus pestaÃ±as. Enriquecido con ingredientes que fortalecen y nutren, limpia suavemente y promueve pestaÃ±as mÃ¡s saludables. Fragancia exclusiva Dubraska Lash. Frasco 50 ml.' },
-  { id: 6, name: 'Super Bonder', price: 15000, category: 'liquidos', image: 'images/liquidos-preparacion-pestaÃ±as.jpg', desc: 'Funciona como sellante maximizando la retenciÃ³n de las extensiones. PresentaciÃ³n frasco de 15 ml.' },
-  { id: 7, name: 'Primer', price: 15000, category: 'liquidos', image: 'images/liquidos-preparacion-pestaÃ±as.jpg', desc: 'Preparador de la pestaÃ±a natural antes de la aplicaciÃ³n de extensiones. PresentaciÃ³n frasco de 15 ml.' },
-  { id: 8, name: 'Limpador de Pinza', price: 5000, category: 'liquidos', image: 'images/liquidos-preparacion-pestaÃ±as.jpg', desc: 'Elimina todos los residuos de adhesivos en las pinzas de manera eficaz y rÃ¡pida.' },
-  { id: 9, name: 'Sellante MÃ¡gico (Ojipijas)', price: 18000, category: 'herramientas', image: 'images/pinzas-herramientas-profesional.jpg', desc: 'Sellante especial para crear ojipijas perfectas. Producto innovador para un acabado profesional.' },
-  { id: 10, name: 'Pinza de Alineamiento 5x', price: 18000, category: 'herramientas', image: 'images/pinzas-herramientas-profesional.jpg', desc: 'Pinzas diseÃ±adas con precisiÃ³n para facilitar la aplicaciÃ³n y mantenimiento de extensiones. Pinzas de alineamiento 5x modelo 0001.' },
-  { id: 11, name: 'Pinza de PrecisiÃ³n Pro', price: 15000, category: 'herramientas', image: 'images/pinzas-herramientas-profesional.jpg', desc: 'Pinzas diseÃ±adas con precisiÃ³n para facilitar la aplicaciÃ³n y el mantenimiento de extensiones de pestaÃ±as. Clave para un trabajo detallado y preciso.' },
-  { id: 12, name: 'Easy Fan - MÃ¡quina de Abanicos', price: 70000, category: 'herramientas', image: 'images/easy-fan-maquina-abanicos.jpg', desc: 'MÃ¡quina que facilita el armado de abanicos de manera rÃ¡pida y uniforme. Ideal para lashistas profesionales que buscan eficiencia.' },
-  { id: 13, name: 'Lashes 0.07 (18 lÃ­neas)', price: 15000, category: 'lashes', image: 'images/pestaÃ±as-pelo-a-pelo-tecnica-clasica-santiago-chile.jpg', desc: 'Caja de pestaÃ±as 0.07 con 18 lÃ­neas, 5-13 mm. Disponible en curvaturas: C-MIX, CC-MIX, D-MIX.' },
-  { id: 14, name: 'Lashes 0.10 (18 lÃ­neas)', price: 15000, category: 'lashes', image: 'images/extensiones-de-pestaÃ±as-naturales-efecto-organico-lashista.jpg', desc: 'Caja de pestaÃ±as 0.10 con 18 lÃ­neas, 5-13 mm. Disponible en curvaturas: C-MIX, D-MIX, CC-MIX.' },
-  { id: 15, name: 'Fibras TecnolÃ³gicas 0.05 (16 lÃ­neas)', price: 12500, category: 'fibras', image: 'images/volumen-tecnologico-pestaÃ±as-fibras-tecnologicas-alta-retencion.jpg', desc: 'Fibras tecnolÃ³gicas 7 a 14 mm / 16 lÃ­neas. Curvaturas: 0.05C-MIX, 0.05D-MIX, 0.05M-MIX, 0.05CC-MIX, 0.05DD-MIX.' },
-  { id: 16, name: 'Fibras TecnolÃ³gicas 0.07 (6 lÃ­neas)', price: 8000, category: 'fibras', image: 'images/volumen-tecnologico-pestaÃ±as-fibras-tecnologicas-alta-retencion.jpg', desc: 'Fibras tecnolÃ³gicas 7 a 8 mm / 6 lÃ­neas. Curvaturas: 0.07C-MIX, 0.07CC-MIX, 0.07D-MIX.' },
-  { id: 17, name: 'Fibras TecnolÃ³gicas 0.07 (16 lÃ­neas)', price: 14000, category: 'fibras', image: 'images/volumen-tecnologico-pestaÃ±as-fibras-tecnologicas-alta-retencion.jpg', desc: 'Fibras tecnolÃ³gicas 7 a 14 mm / 16 lÃ­neas. Curvaturas: 0.07C-MIX, 0.07D-MIX, 0.07L-MIX, 0.07M-MIX, 0.07CC-MIX, 0.07DD-MIX.' },
-  { id: 18, name: 'Fibras TecnolÃ³gicas 0.07 Cortas (6 lÃ­neas)', price: 8000, category: 'fibras', image: 'images/volumen-tecnologico-pestaÃ±as-fibras-tecnologicas-alta-retencion.jpg', desc: 'Fibras tecnolÃ³gicas 7 a 8 mm / 6 lÃ­neas. Curvaturas: 0.07C-MIX, 0.07CC-MIX, 0.07D-MIX.' },
-  { id: 19, name: '4W Volumen (16 lÃ­neas)', price: 14000, category: 'volumen', image: 'images/pestaÃ±as-volumen-ruso-abanicos-artesanales-handmade-pro.jpg', desc: 'PestaÃ±as 4W, 7 a 14 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, L-MIX, M-MIX, CC-MIX, DD-MIX.' },
-  { id: 20, name: '5W Volumen (16 lÃ­neas)', price: 15000, category: 'volumen', image: 'images/pestaÃ±as-volumen-ruso-abanicos-artesanales-handmade-pro.jpg', desc: 'PestaÃ±as 5W, 7 a 14 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, L-MIX, M-MIX, CC-MIX, DD-MIX.' },
-  { id: 21, name: '6W Volumen (16 lÃ­neas)', price: 15000, category: 'volumen', image: 'images/pestaÃ±as-volumen-ruso-abanicos-artesanales-handmade-pro.jpg', desc: 'PestaÃ±as 6W, 7 a 14 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, L-MIX, M-MIX, CC-MIX, DD-MIX.' },
-  { id: 22, name: 'U-4W Fibras TecnolÃ³gicas', price: 15000, category: 'fibras-u', image: 'images/pestaÃ±as-closed-fans-textura-compacta-volumen-elegante.jpg', desc: 'Fibras U-4W, 7 a 13 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, CC-MIX. PrÃ³ximamente curvatura M.' },
-  { id: 23, name: 'U-3W Fibras TecnolÃ³gicas', price: 15000, category: 'fibras-u', image: 'images/pestaÃ±as-closed-fans-textura-compacta-volumen-elegante.jpg', desc: 'Fibras U-3W, 7 a 13 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, CC-MIX. PrÃ³ximamente curvatura M.' },
-  { id: 24, name: 'U-5W Fibras TecnolÃ³gicas', price: 15000, category: 'fibras-u', image: 'images/pestaÃ±as-closed-fans-textura-compacta-volumen-elegante.jpg', desc: 'Fibras U-5W, 7 a 13 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, CC-MIX. PrÃ³ximamente curvatura M.' },
-  { id: 25, name: 'U-YY Fibras TecnolÃ³gicas', price: 15000, category: 'fibras-u', image: 'images/pestaÃ±as-closed-fans-textura-compacta-volumen-elegante.jpg', desc: 'Fibras U-YY, 7 a 13 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, CC-MIX. PrÃ³ximamente curvatura M.' },
-  { id: 26, name: 'Spire Lashes', price: 15000, category: 'especiales', image: 'images/pestaÃ±as-efecto-rimel-negro-intenso-mirada-perfecta.jpg', desc: 'Spire Lashes, 8 a 13 mm / 10 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, CC-MIX. Efecto espiga profesional.' },
-  { id: 27, name: 'Tech Eyeliner', price: 15000, category: 'especiales', image: 'images/pestaÃ±as-efecto-rimel-negro-intenso-mirada-perfecta.jpg', desc: 'Tech Eyeliner con direcciones en ambos sentidos para lograr un delineado perfecto. 7 a 13 mm / 16 lÃ­neas. Curvaturas: 0.07 B-MIX, C-MIX, M-MIX (Ideal para Foxy).' },
-  { id: 28, name: '3W White Spike Verde', price: 15000, category: 'white-spike', image: 'images/pestaÃ±as-volumen-americano-estilo-foxy-eyes-texturizado.jpg', desc: '3W White Spike Tono Verde, 7 a 13 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, M-MIX, CC-MIX.' },
-  { id: 29, name: '3W White Spike Rojo', price: 15000, category: 'white-spike', image: 'images/pestaÃ±as-volumen-americano-estilo-foxy-eyes-texturizado.jpg', desc: '3W White Spike Tono Rojo, 7 a 13 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, M-MIX, CC-MIX.' },
-  { id: 30, name: '3W White Spike PÃºrpura', price: 15000, category: 'white-spike', image: 'images/pestaÃ±as-volumen-americano-estilo-foxy-eyes-texturizado.jpg', desc: '3W White Spike Tono PÃºrpura, 7 a 13 mm / 16 lÃ­neas. Curvaturas: 0.07 C-MIX, D-MIX, M-MIX, CC-MIX.' },
-  { id: 31, name: 'Fibras Color Azul / PÃºrpura', price: 15000, category: 'fibras-color', image: 'images/fibras-colores-pestaÃ±as.jpg', desc: 'Fibras 7 a 13 mm / 16 lÃ­neas, Tono Azul / PÃºrpura. Curvaturas: 0.07 B-MIX, C-MIX, D-MIX, M-MIX, CC-MIX.' },
-  { id: 32, name: 'Fibras Color CafÃ© / MarrÃ³n', price: 15000, category: 'fibras-color', image: 'images/fibras-colores-pestaÃ±as.jpg', desc: 'Fibras 7 a 13 mm / 16 lÃ­neas, Tono CafÃ© / MarrÃ³n. Curvaturas: 0.07 B-MIX, C-MIX, D-MIX, M-MIX, CC-MIX.' },
-  { id: 33, name: 'Fibras Color Rosa', price: 15000, category: 'fibras-color', image: 'images/fibras-colores-pestaÃ±as.jpg', desc: 'Fibras 7 a 13 mm / 16 lÃ­neas, Tono Rosa. Curvaturas: 0.07 B-MIX, C-MIX, D-MIX, M-MIX, CC-MIX.' },
-  { id: 34, name: 'CÃ­lios 0.07 C MIX 5-15mm Mate', price: 18000, category: 'cilios', image: 'images/pestaÃ±as-pelo-a-pelo-tecnica-clasica-santiago-chile.jpg', desc: 'CÃ­lios con tecnologÃ­a lÃ¡ser, 0.07 C MIX, 5 a 15 mm mate. Disponibles en colores: Blanco, Verde, Rosa, Morado, Naranja, CafÃ©/MarrÃ³n, Amarillo, Rojo.' },
-  { id: 35, name: 'Lash Couture ClÃ¡sica 1x1', price: 45000, category: 'servicios-pestaÃ±as', image: 'images/pestaÃ±as-pelo-a-pelo-tecnica-clasica-santiago-chile.jpg', desc: 'Eleva tu mirada con nuestra tÃ©cnica exclusiva pelo a pelo. Aplicando una extensiÃ³n premium sobre cada pestaÃ±a natural con precisiÃ³n quirÃºrgica.' },
-  { id: 36, name: 'Natural Essence Efecto Natural', price: 50000, category: 'servicios-pestaÃ±as', image: 'images/extensiones-de-pestaÃ±as-naturales-efecto-organico-lashista.jpg', desc: 'DiseÃ±o orgÃ¡nico que aporta longitud y curvatura estratÃ©gica sin comprometer la salud de tu mirada.' },
-  { id: 37, name: 'Mascara Look Pro Efecto RÃ­mel', price: 55000, category: 'servicios-pestaÃ±as', image: 'images/pestaÃ±as-efecto-rimel-negro-intenso-mirada-perfecta.jpg', desc: 'Acabado de pestaÃ±as maquilladas mediante fibras de mayor grosor y un negro intenso mate que define el ojo al instante.' },
-  { id: 38, name: 'Signature Closed Fans', price: 60000, category: 'servicios-pestaÃ±as', image: 'images/pestaÃ±as-closed-fans-textura-compacta-volumen-elegante.jpg', desc: 'TÃ©cnica de abanicos cerrados. Crea una textura compacta, densa y sumamente elegante para un look sofisticado.' },
-  { id: 39, name: 'Tecno-Lash 5G Volumen TecnolÃ³gico', price: 65000, category: 'servicios-pestaÃ±as', image: 'images/volumen-tecnologico-pestaÃ±as-fibras-tecnologicas-alta-retencion.jpg', desc: 'Fibras tecnolÃ³gicas de Ãºltima generaciÃ³n para mÃ¡xima densidad con peso pluma. Alta retenciÃ³n y rapidez de aplicaciÃ³n.' },
-  { id: 40, name: 'American Star Volume', price: 70000, category: 'servicios-pestaÃ±as', image: 'images/pestaÃ±as-volumen-americano-estilo-foxy-eyes-texturizado.jpg', desc: 'DiseÃ±o irregular y lleno de textura. Diferentes longitudes y curvaturas para un volumen con movimiento vibrante.' },
-  { id: 41, name: 'Royal Russian Volume Handmade', price: 75000, category: 'servicios-pestaÃ±as', image: 'images/pestaÃ±as-volumen-ruso-abanicos-artesanales-handmade-pro.jpg', desc: 'Densidad mÃ¡xima mediante abanicos artesanales hechos a mano. Efecto glamuroso, extra tupido y profundamente oscuro.' },
-  { id: 42, name: 'Brow Architecture Perfilado', price: 35000, category: 'servicios-cejas', image: 'images/perfilado-de-cejas-diseÃ±o-visagismo-profesional-chile.jpg', desc: 'Arte del visagismo profesional. Esculpimos el marco perfecto para tu mirada mediante diseÃ±o simÃ©trico basado en la morfologÃ­a de tu rostro.' },
-  { id: 43, name: 'Luxury Lip Blush MicropigmentaciÃ³n', price: 120000, category: 'servicios-cejas', image: 'images/micropigmentacion-de-labios-efecto-acuarela-lip-blush.jpg', desc: 'Transforma tus labios con un delicado efecto acuarela. Color, definiciÃ³n y simetrÃ­a para realzar tu tono natural.' },
-  { id: 44, name: 'Master Microblading Cejas', price: 95000, category: 'servicios-cejas', image: 'images/microblading-cejas-pelo-a-pelo-maquillaje-permanente.jpg', desc: 'ReconstrucciÃ³n pelo a pelo de alta precisiÃ³n. Trazos ultra finos que imitan el crecimiento natural del vello.' },
-  { id: 45, name: 'Silk Face Finish DepilaciÃ³n', price: 25000, category: 'servicios-cejas', image: 'images/depilacion-facial-piel-suave-perfeccion-rostro-estetica.jpg', desc: 'TÃ©cnicas de depilaciÃ³n facial delicadas que eliminan el vello no deseado respetando la integridad de tu piel.' },
-  { id: 46, name: 'Curso Inicial Lash Design', price: 250000, category: 'cursos', image: 'images/Rectangle.png', desc: 'Aprende desde cero la tÃ©cnica de extensiones de pestaÃ±as. Incluye teorÃ­a, prÃ¡ctica con modelo, kit de inicio y certificado. Presencial en ConcepciÃ³n.' },
-  { id: 47, name: 'Curso Avanzado Volumen Ruso', price: 350000, category: 'cursos', image: 'images/Rectangle.png', desc: 'Perfecciona tu tÃ©cnica con el curso avanzado de Volumen Ruso Handmade. Entrenamiento intensivo, material didÃ¡ctico y certificaciÃ³n internacional.' },
-  { id: 48, name: 'MentorÃ­a EstratÃ©gica Business', price: 450000, category: 'cursos', image: 'images/Rectangle.png', desc: 'MentorÃ­a integral para hacer crecer tu negocio de belleza. Estrategia de precios, marketing, branding y escalabilidad.' }
-];
-
-const CATEGORIES = {
-  'adhesivos': 'Adhesivos',
-  'liquidos': 'Líquidos & Prep',
-  'herramientas': 'Herramientas',
-  'lashes': 'Lashes Clásicas',
-  'fibras': 'Fibras Tecnológicas',
-  'volumen': 'Volumen 4W/5W/6W',
-  'fibras-u': 'Fibras U (Prom)',
-  'especiales': 'Especiales',
-  'white-spike': 'White Spike',
-  'fibras-color': 'Fibras Color',
-  'cilios': 'Cílios',
-  'servicios-pestañas': 'Servicios Pestañas',
-  'servicios-cejas': 'Cejas & PMU',
-  'cursos': 'Cursos'
-};
-
-const CATEGORY_GROUPS = {
-  'Productos': ['adhesivos', 'liquidos', 'herramientas', 'lashes', 'fibras', 'volumen', 'fibras-u', 'especiales', 'white-spike', 'fibras-color', 'cilios'],
-  'Servicios': ['servicios-pestañas', 'servicios-cejas'],
-  'Formacion': ['cursos']
-};
+// Product cache for cart operations
+let _productCache = [];
 
 // Cart Manager
 const Cart = {
   STORAGE_KEY: 'dubraska_cart',
+
+  // Set product cache from external data
+  setProductCache(products) {
+    _productCache = products || [];
+  },
+
+  // Get product by ID from cache or API
+  async getProductById(id) {
+    // Check cache first
+    let product = _productCache.find(p => p.id === id);
+    if (product) return product;
+
+    // Try localStorage cache
+    try {
+      const cached = localStorage.getItem('dubraska_products_cache');
+      if (cached) {
+        const all = JSON.parse(cached);
+        product = all.find(p => p.id === id);
+        if (product) {
+          _productCache = all;
+          return product;
+        }
+      }
+    } catch(e) {}
+
+    // Try API
+    try {
+      const resp = await fetch(`/api/products/${id}`);
+      if (resp.ok) {
+        product = await resp.json();
+        return product;
+      }
+    } catch(e) {}
+
+    return null;
+  },
 
   getItems() {
     try {
@@ -98,15 +63,25 @@ const Cart = {
   },
 
   addItem(productId, qty = 1) {
-    const product = PRODUCTS.find(p => p.id === productId);
+    // Find product in cache
+    const product = _productCache.find(p => p.id === productId);
     if (!product) return;
+
     const items = this.getItems();
     const existing = items.find(i => i.id === productId);
+
     if (existing) {
       existing.qty += qty;
     } else {
-      items.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: qty });
+      items.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        qty: qty
+      });
     }
+
     this.saveItems(items);
     this.showToast(product.name);
   },
@@ -118,14 +93,25 @@ const Cart = {
   },
 
   updateQty(productId, qty) {
-    if (qty < 1) { this.removeItem(productId); return; }
+    if (qty < 1) {
+      this.removeItem(productId);
+      return;
+    }
     const items = this.getItems();
     const item = items.find(i => i.id === productId);
-    if (item) { item.qty = qty; this.saveItems(items); }
+    if (item) {
+      item.qty = qty;
+      this.saveItems(items);
+    }
   },
 
-  getTotal() { return this.getItems().reduce((sum, item) => sum + (item.price * item.qty), 0); },
-  getCount() { return this.getItems().reduce((sum, item) => sum + item.qty, 0); },
+  getTotal() {
+    return this.getItems().reduce((sum, item) => sum + (item.price * item.qty), 0);
+  },
+
+  getCount() {
+    return this.getItems().reduce((sum, item) => sum + item.qty, 0);
+  },
 
   clear() {
     localStorage.removeItem(this.STORAGE_KEY);
@@ -133,12 +119,17 @@ const Cart = {
     this.renderSidebar();
   },
 
-  formatPrice(price) { return '$' + price.toLocaleString('es-CL'); },
+  formatPrice(price) {
+    return '$' + price.toLocaleString('es-CL');
+  },
 
   updateBadge() {
     const badges = document.querySelectorAll('.cart-badge');
     const count = this.getCount();
-    badges.forEach(badge => { badge.textContent = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; });
+    badges.forEach(badge => {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+    });
   },
 
   showToast(productName) {
@@ -159,8 +150,11 @@ const Cart = {
     const totalEl = document.getElementById('cart-sidebar-total');
     const emptyMsg = document.getElementById('cart-empty-msg');
     const checkoutBtn = document.getElementById('cart-checkout-btn');
+
     if (!container) return;
+
     const items = this.getItems();
+
     if (items.length === 0) {
       container.innerHTML = '';
       if (emptyMsg) emptyMsg.style.display = 'block';
@@ -168,8 +162,10 @@ const Cart = {
       if (checkoutBtn) checkoutBtn.style.display = 'none';
       return;
     }
+
     if (emptyMsg) emptyMsg.style.display = 'none';
     if (checkoutBtn) checkoutBtn.style.display = 'block';
+
     container.innerHTML = items.map(item => `
       <div class="cart-sidebar-item d-flex gap-3 mb-3 pb-3 border-bottom">
         <img src="${item.image}" alt="${item.name}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
@@ -185,14 +181,18 @@ const Cart = {
         <button class="btn btn-sm p-0 text-muted" onclick="Cart.removeItem(${item.id})" title="Eliminar"><i class="ri-close-line fs-5"></i></button>
       </div>
     `).join('');
+
     if (totalEl) totalEl.textContent = this.formatPrice(this.getTotal());
   },
 
   checkout() {
     const items = this.getItems();
     if (items.length === 0) return;
+
     let msg = 'Hola Dubraskalash! Quiero realizar el siguiente pedido:%0A%0A';
-    items.forEach(item => { msg += `* ${item.name} x${item.qty} - ${this.formatPrice(item.price * item.qty)}%0A`; });
+    items.forEach(item => {
+      msg += `• ${item.name} x${item.qty} - ${this.formatPrice(item.price * item.qty)}%0A`;
+    });
     msg += `%0ATotal: ${this.formatPrice(this.getTotal())}%0A%0AGracias!`;
     window.open(`https://wa.me/56946510308?text=${msg}`, '_blank');
   },
@@ -200,7 +200,11 @@ const Cart = {
   toggleSidebar() {
     const sidebar = document.getElementById('cart-sidebar');
     const overlay = document.getElementById('cart-overlay');
-    if (sidebar) { sidebar.classList.toggle('open'); if (overlay) overlay.classList.toggle('open'); this.renderSidebar(); }
+    if (sidebar) {
+      sidebar.classList.toggle('open');
+      if (overlay) overlay.classList.toggle('open');
+      this.renderSidebar();
+    }
   },
 
   closeSidebar() {
@@ -210,7 +214,13 @@ const Cart = {
     if (overlay) overlay.classList.remove('open');
   },
 
-  init() { this.updateBadge(); this.renderSidebar(); }
+  init() {
+    this.updateBadge();
+    this.renderSidebar();
+  }
 };
 
-document.addEventListener('DOMContentLoaded', function() { Cart.init(); });
+// Auto-init on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  Cart.init();
+});

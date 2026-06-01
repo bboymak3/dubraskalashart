@@ -170,6 +170,28 @@
 <script src="js/cart.js"></script>
 <script>
 let currentQty = 1;
+let PRODUCTS = [];
+let CATEGORIES = {};
+let CATEGORY_GROUPS = {};
+
+async function loadProductData() {
+  try {
+    const [prodResp, catResp] = await Promise.all([
+      fetch('/api/products'),
+      fetch('/api/categories')
+    ]);
+    PRODUCTS = (await prodResp.json()) || [];
+    const catData = await catResp.json();
+    CATEGORY_GROUPS = catData.groups || {};
+    (catData.categories || []).forEach(c => { CATEGORIES[c.slug] = c.name; });
+    if (window.Cart) Cart.setProductCache(PRODUCTS);
+    localStorage.setItem('dubraska_products_cache', JSON.stringify(PRODUCTS));
+  } catch(e) {
+    console.warn('API not available, using cache:', e);
+    const cached = localStorage.getItem('dubraska_products_cache');
+    if (cached) { try { PRODUCTS = JSON.parse(cached); } catch(e2) {} }
+  }
+}
 
 function getProduct() {
   const params = new URLSearchParams(window.location.search);
@@ -177,7 +199,8 @@ function getProduct() {
   return PRODUCTS.find(p => p.id === id) || PRODUCTS[0];
 }
 
-function renderProduct() {
+async function renderProduct() {
+  await loadProductData();
   const p = getProduct();
   if (!p) { window.location.href = 'tienda.html'; return; }
 
