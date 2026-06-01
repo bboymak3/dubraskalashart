@@ -1,9 +1,12 @@
 /**
- * Image Serving API - /api/images/:key
+ * Image Serving API - /api/images/[...key]
  * GET: Serve image from R2
+ * Supports paths like: /api/images/dubraska/filename.jpg
+ *                       /api/images/123456-abc123.jpg (uploaded)
+ *
+ * [...key] is a catch-all route that captures all path segments after /api/images/
  */
 
-// === SHARED UTILITIES (inline) ===
 function errorResponse(message, status = 400) {
   return new Response(JSON.stringify({ error: message }), {
     status,
@@ -26,7 +29,6 @@ function handleOptions() {
     }
   });
 }
-// === END SHARED UTILITIES ===
 
 export async function onRequestGet(context) {
   const { env, params } = context;
@@ -35,20 +37,28 @@ export async function onRequestGet(context) {
   if (!bucket) return errorResponse('R2 storage not configured', 500);
 
   try {
-    const key = params.key;
+    // [...key] gives us the full path after /api/images/ as a string
+    // e.g. "dubraska/filename.jpg" or "123456-abc123.jpg"
+    let key = params.key;
+
     if (!key) return errorResponse('Image key required', 400);
 
+    // Handle array (shouldn't happen with [...key] but be safe)
+    if (Array.isArray(key)) {
+      key = key.join('/');
+    }
+
     const object = await bucket.get(key);
-    if (!object) return errorResponse('Image not found', 404);
+    if (!object) return errorResponse('Image not found: ' + key, 404);
 
     const headers = new Headers();
     headers.set('Cache-Control', 'public, max-age=31536000, immutable');
     headers.set('ETag', object.httpEtag);
+    headers.set('Access-Control-Allow-Origin', '*');
 
     if (object.httpMetadata?.contentType) {
       headers.set('Content-Type', object.httpMetadata.contentType);
     } else {
-      // Guess content type from extension
       const ext = key.split('.').pop()?.toLowerCase();
       const types = {
         'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',

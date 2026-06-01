@@ -79,11 +79,11 @@ export async function onRequestPost(context) {
       return errorResponse('Image must be under 5MB', 400);
     }
 
-    // Generate unique key
+    // Generate unique key under dubraska/ prefix
     const ext = file.name.split('.').pop() || 'jpg';
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 8);
-    const key = `${timestamp}-${random}.${ext}`;
+    const key = `dubraska/${timestamp}-${random}.${ext}`;
 
     // Upload to R2
     const bucket = env.BUCKET;

@@ -275,13 +275,19 @@
     <div id="tab-images" style="display:none;">
       <div class="admin-card">
         <div class="admin-card-header">
-          <h5><i class="ri-image-line me-2" style="color:#1565c0;"></i>Imágenes</h5>
-          <button class="btn-primary-custom" onclick="AdminImages.upload()"><i class="ri-upload-cloud-line me-1"></i>Subir</button>
+          <h5><i class="ri-image-line me-2" style="color:#1565c0;"></i>Imágenes (R2)</h5>
+          <div class="d-flex gap-2">
+            <button class="btn-outline-custom btn-sm" onclick="AdminImages.refresh()"><i class="ri-refresh-line me-1"></i>Actualizar</button>
+            <button class="btn-primary-custom" onclick="AdminImages.upload()"><i class="ri-upload-cloud-line me-1"></i>Subir</button>
+          </div>
         </div>
         <div class="p-4">
           <input type="file" id="imageFileInput" accept="image/*" style="display:none;" onchange="AdminImages.handleUpload(event)">
-          <p class="text-muted mb-3">Las imágenes nuevas se guardan en Cloudflare R2. Las existentes están en la carpeta /images/ del sitio.</p>
-          <h6 class="fw-bold mb-3">Imágenes del sitio (existentes)</h6>
+          <p class="text-muted mb-3">Todas las imágenes se guardan y sirven desde <strong>Cloudflare R2</strong> (carpeta <code>dubraska/</code>).</p>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">Imágenes en R2</h6>
+            <span class="text-muted" id="r2ImageCount">--</span>
+          </div>
           <div class="row g-3" id="imageGrid"></div>
         </div>
       </div>
@@ -433,49 +439,19 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const API = '/api';
-const SITE_IMAGES = [
-  'images/ultra-clear-glue-Lash-Design.png',
-  'images/ultra-clear-glue-Lash-Design-chile-latam-latinoamerica-venta.png',
-  'images/ultra-clear-glue-Lash-Design-dubraska-chile.png',
-  'images/extensiones-pestañas-pelo-pelo-santiago-chile-mirada-perfecta.jpg',
-  'images/adhesivo-pestañas-alta-retencion-pro-lashistas-insumos-premium.jpg',
-  'images/insumos-pestañas-top-line-premium-chile-calidad-internacional.jpg',
-  'images/pegamento-pestañas-ultra-clear-glue-profesional-secado-rapido.jpg',
-  'images/volumen-ruso-pestañas-abanicos-artesanales-handmade-efecto-glamuroso.jpg',
-  'images/perfilado-cejas-visagismo-profesional-diseño-perfecto-simetria-facial.jpg',
-  'images/microblading-cejas-hiperrealistas-pelo-pelo-estetica-maquillaje-permanente.jpg',
-  'images/micropigmentacion-labios-efecto-acuarela-lip-blush-color-duradero.jpg',
-  'images/volumen-tecnologico-pestañas-fibras-inteligentes-elite-peso-pluma.jpg',
-  'images/pestañas-efecto-rimel-negro-intenso-maquillaje-diario-definicion.jpg',
-  'images/closed-fans-pestañas-textura-compacta-elegante-acabado-sofisticado.jpg',
-  'images/volumen-americano-pestañas-estilo-spikes-texturizado-look-audaz.jpg',
-  'images/depilacion-facial-piel-suave-estetica-rostro-acabado-luminoso.jpg',
-  'images/curso-extensiones-pestañas-lashista-profesional-chile-capacitacion-elite.jpg',
-  'images/productos-pestañas-alta-gama-insumos-lash-artistas-expertas.jpg',
-  'images/diseño-cejas-maquillaje-permanente-micropigmentacion-pro-rostro-armonico.jpg',
-  'images/pestañas-efecto-natural-organico-longitud-curvatura-esencia-unica.jpg',
-  'images/insumos-lashistas-santiago-chile-tienda-pestañas-distribuidor-oficial.jpg',
-  'images/adhesivo-profesional-pestañas.jpg',
-  'images/easy-fan-maquina-abanicos.jpg',
-  'images/fibras-colores-pestañas.jpg',
-  'images/liquidos-preparacion-pestañas.jpg',
-  'images/pinzas-herramientas-profesional.jpg',
-  'images/pestañas-pelo-a-pelo-tecnica-clasica-santiago-chile.jpg',
-  'images/extensiones-de-pestañas-naturales-efecto-organico-lashista.jpg',
-  'images/pestañas-efecto-rimel-negro-intenso-mirada-perfecta.jpg',
-  'images/pestañas-closed-fans-textura-compacta-volumen-elegante.jpg',
-  'images/volumen-tecnologico-pestañas-fibras-tecnologicas-alta-retencion.jpg',
-  'images/pestañas-volumen-americano-estilo-foxy-eyes-texturizado.jpg',
-  'images/pestañas-volumen-ruso-abanicos-artesanales-handmade-pro.jpg',
-  'images/perfilado-de-cejas-diseño-visagismo-profesional-chile.jpg',
-  'images/micropigmentacion-de-labios-efecto-acuarela-lip-blush.jpg',
-  'images/microblading-cejas-pelo-a-pelo-maquillaje-permanente.jpg',
-  'images/depilacion-facial-piel-suave-perfeccion-rostro-estetica.jpg',
-  'images/Rectangle.png',
-  'images/Pinzas-y-Herramientas.png',
-  'images/Preparacion-y-Limpieza.png',
-  'images/Gemini_Generated_Image_8oqub48oqub48oqu.png'
-];
+let SITE_IMAGES = []; // Loaded dynamically from R2
+
+async function loadR2Images() {
+  try {
+    const resp = await fetch(`${API}/r2-images`);
+    const data = await resp.json();
+    if (data.images) {
+      SITE_IMAGES = data.images.map(img => img.url);
+    }
+  } catch(e) {
+    console.warn('Could not load R2 images:', e);
+  }
+}
 
 // ============================================
 // AUTH
@@ -562,6 +538,7 @@ const AdminAuth = {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('adminHeader').style.display = 'block';
     document.getElementById('adminContent').style.display = 'block';
+    loadR2Images(); // Load R2 images list
     AdminProducts.load();
   },
 
@@ -961,17 +938,43 @@ const AdminCategories = {
 // IMAGES
 // ============================================
 const AdminImages = {
-  render() {
-    document.getElementById('imageGrid').innerHTML = SITE_IMAGES.map(img => `
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="admin-card p-3 text-center">
-          <img src="${img}" alt="" style="width:100%;height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px;" onerror="this.parentElement.style.display='none'">
-          <small class="text-muted d-block" style="word-break:break-all;font-size:0.7rem;">${img.split('/').pop()}</small>
-          <button class="btn-action btn-edit mt-2" style="width:28px;height:28px;font-size:0.8rem;" onclick="navigator.clipboard.writeText('${img}');alert('Ruta copiada!');" title="Copiar"><i class="ri-file-copy-line"></i></button>
+  async render() {
+    const grid = document.getElementById('imageGrid');
+    const countEl = document.getElementById('r2ImageCount');
+    grid.innerHTML = '<div class="col-12 text-center py-4"><div class="spinner-border spinner-border-sm me-2"></div>Cargando imágenes de R2...</div>';
+
+    try {
+      const resp = await fetch(`${API}/r2-images`);
+      const data = await resp.json();
+      const images = data.images || [];
+      if (countEl) countEl.textContent = `${images.length} imágenes`;
+
+      if (images.length === 0) {
+        grid.innerHTML = '<div class="col-12 text-center py-4 text-muted"><i class="ri-image-line" style="font-size:2rem;"></i><p>No hay imágenes en R2</p></div>';
+        return;
+      }
+
+      grid.innerHTML = images.map(img => `
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="admin-card p-3 text-center">
+            <img src="${img.url}" alt="${img.filename}" style="width:100%;height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px;" onerror="this.style.display='none'">
+            <small class="text-muted d-block" style="word-break:break-all;font-size:0.7rem;">${img.filename}</small>
+            <small class="text-muted" style="font-size:0.65rem;">${(img.size/1024).toFixed(0)} KB</small>
+            <div class="d-flex justify-content-center gap-1 mt-2">
+              <button class="btn-action btn-edit" style="width:28px;height:28px;font-size:0.8rem;" onclick="navigator.clipboard.writeText('${img.url}');this.innerHTML='<i class=\\'ri-check-line\\'></i>';setTimeout(()=>this.innerHTML='<i class=\\'ri-file-copy-line\\'></i>',1500);" title="Copiar URL"><i class="ri-file-copy-line"></i></button>
+            </div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+
+      // Also update SITE_IMAGES for product modal gallery
+      SITE_IMAGES = images.map(img => img.url);
+    } catch(e) {
+      grid.innerHTML = '<div class="col-12 text-center py-4 text-danger"><i class="ri-error-warning-line"></i> Error cargando imágenes</div>';
+    }
   },
+
+  refresh() { this.render(); },
 
   upload() { document.getElementById('imageFileInput').click(); },
 
