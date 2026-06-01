@@ -150,6 +150,31 @@
   </div>
 </section>
 
+<!-- GALERÍA DE IMÁGENES -->
+<section class="py-5" id="galeria">
+  <div class="container py-4">
+    <div class="section-header">
+      <span class="subtitle">Nuestro Trabajo & Productos</span>
+      <h2>Galería</h2>
+      <div class="divider-gold"></div>
+    </div>
+    <div class="row g-3" id="galleryGrid">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="text-center mt-4">
+      <a href="tienda.html" class="btn btn-outline-fuchsia"><i class="ri-store-2-line me-2"></i>Ver Todos los Productos</a>
+    </div>
+  </div>
+  <style>
+    .gallery-item { position:relative; overflow:hidden; border-radius:14px; cursor:pointer; aspect-ratio:1/1; }
+    .gallery-item img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s ease; }
+    .gallery-item:hover img { transform:scale(1.08); }
+    .gallery-item .gallery-overlay { position:absolute; inset:0; background:linear-gradient(transparent 50%,rgba(26,26,46,0.7)); opacity:0; transition:opacity 0.3s; display:flex; align-items:flex-end; padding:15px; }
+    .gallery-item:hover .gallery-overlay { opacity:1; }
+    .gallery-overlay span { color:#fff; font-size:0.8rem; font-weight:600; font-family:var(--font-body); }
+  </style>
+</section>
+
 <!-- INSUMOS Y ACADEMIA -->
 <section class="py-5 bg-light position-relative" id="academia">
   <div class="container py-5">
@@ -343,11 +368,47 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/cart.js"></script>
 <script>
-// Render 4 featured products on homepage
-document.addEventListener('DOMContentLoaded', function() {
-  const featured = [PRODUCTS[0], PRODUCTS[4], PRODUCTS[8], PRODUCTS[10]]; // Clásica, Tecno-Lash, Lip Blush, Microblading
+let PRODUCTS = [];
+const GALLERY_IMAGES = [
+  'images/ultra-clear-glue-Lash-Design.png',
+  'images/ultra-clear-glue-Lash-Design-chile-latam-latinoamerica-venta.png',
+  'images/ultra-clear-glue-Lash-Design-dubraska-chile.png',
+  'images/extensiones-pestañas-pelo-pelo-santiago-chile-mirada-perfecta.jpg',
+  'images/adhesivo-pestañas-alta-retencion-pro-lashistas-insumos-premium.jpg',
+  'images/insumos-pestañas-top-line-premium-chile-calidad-internacional.jpg',
+  'images/pegamento-pestañas-ultra-clear-glue-profesional-secado-rapido.jpg',
+  'images/volumen-ruso-pestañas-abanicos-artesanales-handmade-efecto-glamuroso.jpg',
+  'images/perfilado-cejas-visagismo-profesional-diseño-perfecto-simetria-facial.jpg',
+  'images/microblading-cejas-hiperrealistas-pelo-pelo-estetica-maquillaje-permanente.jpg',
+  'images/micropigmentacion-labios-efecto-acuarela-lip-blush-color-duradero.jpg',
+  'images/volumen-tecnologico-pestañas-fibras-inteligentes-elite-peso-pluma.jpg',
+  'images/pestañas-efecto-rimel-negro-intenso-maquillaje-diario-definicion.jpg',
+  'images/closed-fans-pestañas-textura-compacta-elegante-acabado-sofisticado.jpg',
+  'images/volumen-americano-pestañas-estilo-spikes-texturizado-look-audaz.jpg',
+  'images/depilacion-facial-piel-suave-estetica-rostro-acabado-luminoso.jpg',
+  'images/curso-extensiones-pestañas-lashista-profesional-chile-capacitacion-elite.jpg',
+  'images/productos-pestañas-alta-gama-insumos-lash-artistas-expertas.jpg',
+  'images/diseño-cejas-maquillaje-permanente-micropigmentacion-pro-rostro-armonico.jpg',
+  'images/pestañas-efecto-natural-organico-longitud-curvatura-esencia-unica.jpg',
+  'images/insumos-lashistas-santiago-chile-tienda-pestañas-distribuidor-oficial.jpg'
+];
+
+document.addEventListener('DOMContentLoaded', async function() {
+  // Load products from API
+  try {
+    const resp = await fetch('/api/products');
+    PRODUCTS = (await resp.json()) || [];
+    if (window.Cart && Cart.setProductCache) Cart.setProductCache(PRODUCTS);
+  } catch(e) {
+    const cached = localStorage.getItem('dubraska_products_cache');
+    if (cached) try { PRODUCTS = JSON.parse(cached); } catch(e2) {}
+  }
+  if (PRODUCTS.length > 0) localStorage.setItem('dubraska_products_cache', JSON.stringify(PRODUCTS));
+
+  // Render 4 featured products
+  const featured = PRODUCTS.length >= 4 ? [PRODUCTS[0], PRODUCTS[4], PRODUCTS[8], PRODUCTS[10]] : PRODUCTS.slice(0,4);
   const grid = document.getElementById('featuredProducts');
-  if (grid) {
+  if (grid && featured.length) {
     grid.innerHTML = featured.map(p => `
       <div class="col-md-6 col-lg-3">
         <div class="service-card">
@@ -356,15 +417,30 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <div class="service-body">
             <h4 class="service-title">${p.name}</h4>
-            <p class="service-desc">${p.desc}</p>
+            <p class="service-desc">${p.desc || p.description || ''}</p>
             <div class="d-flex justify-content-between align-items-center">
-              <span style="color:var(--color-primary);font-weight:700;font-size:1.1rem;">$${p.price.toLocaleString('es-CL')}</span>
+              <span style="color:var(--color-primary);font-weight:700;font-size:1.1rem;">$${(p.price||0).toLocaleString('es-CL')}</span>
               <a href="producto.html?id=${p.id}" class="service-btn">Ver más</a>
             </div>
           </div>
         </div>
       </div>
     `).join('');
+  }
+
+  // Render gallery
+  const galleryGrid = document.getElementById('galleryGrid');
+  if (galleryGrid) {
+    galleryGrid.innerHTML = GALLERY_IMAGES.map(img => {
+      const name = img.split('/').pop().replace(/\.[^.]+$/,'').replace(/[-_]/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+      return `
+        <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+          <div class="gallery-item" onclick="window.open('${img}','_blank')">
+            <img src="${img}" alt="${name}" loading="lazy">
+            <div class="gallery-overlay"><span>${name}</span></div>
+          </div>
+        </div>`;
+    }).join('');
   }
 });
 
