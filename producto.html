@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Producto | Dubraskalash.art</title>
+  <meta name="description" content="Detalle de producto en Dubraskalash.art. Pestañas, micropigmentación, insumos y cursos en Concepción, Chile.">
+  <meta name="keywords" content="pestañas, micropigmentación, insumos, cursos, dubraskalash, chile">
+  <meta name="author" content="Dubraskalash.art">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://dubraskalashart.pages.dev/producto.html" />
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/styles.css" rel="stylesheet"/>
+  <style>
+    .product-main-img { width:100%; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); object-fit:cover; max-height:450px; }
+    .qty-selector { display:inline-flex; align-items:center; border:1px solid #e0e0e0; border-radius:10px; overflow:hidden; }
+    .qty-selector button { border:none; background:#f8f8f8; padding:10px 18px; font-size:1.1rem; cursor:pointer; transition:background 0.2s; }
+    .qty-selector button:hover { background:var(--color-secondary); }
+    .qty-selector span { padding:10px 20px; font-weight:700; font-size:1rem; min-width:50px; text-align:center; }
+    .feature-item { display:flex; align-items:flex-start; gap:12px; margin-bottom:15px; }
+    .feature-icon { width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">
+      <i class="ri-sparkling-fill" style="color: var(--color-gold);"></i> DUBRASKALASH.ART
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="ri-menu-line" style="font-size: 1.5rem; color: var(--color-dark);"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="tienda.html">Tienda</a></li>
+        <li class="nav-item"><a class="nav-link" href="quienes-somos.html">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link" href="contactos.html">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="preguntas-frecuentes.html">FAQ</a></li>
+        <li class="nav-item me-2">
+          <span class="cart-icon-wrapper" onclick="Cart.toggleSidebar()">
+            <i class="ri-shopping-cart-2-line"></i>
+            <span class="cart-badge">0</span>
+          </span>
+        </li>
+        <li class="nav-item">
+          <a href="https://wa.me/56946510308" class="btn btn-gold btn-sm rounded-pill px-4">
+            <i class="ri-whatsapp-line me-1"></i> Agendar
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-custom" style="margin-top:68px;">
+  <div class="container">
+    <a href="index.html">Inicio</a> <i class="ri-arrow-right-s-line"></i> <a href="tienda.html">Tienda</a> <i class="ri-arrow-right-s-line"></i> <strong id="breadcrumb-product">Producto</strong>
+  </div>
+</div>
+
+<!-- PRODUCT DETAIL -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5" id="productDetail">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- RELATED PRODUCTS -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="section-header">
+      <span class="subtitle">Te puede interesar</span>
+      <h2>Productos Relacionados</h2>
+      <div class="divider-gold"></div>
+    </div>
+    <div class="row g-4" id="relatedProducts">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4 mb-3">
+        <h5><i class="ri-sparkling-fill me-2" style="color:var(--color-gold);"></i>Dubraskalash.art</h5>
+        <p>Spa de pestañas y micropigmentación de élite en Concepción, Chile. Speaker & Judge Internacional.</p>
+        <div class="footer-social">
+          <a href="#"><i class="ri-instagram-line"></i></a>
+          <a href="#"><i class="ri-facebook-circle-fill"></i></a>
+          <a href="#"><i class="ri-tiktok-fill"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 mb-3">
+        <h5>Navegación</h5>
+        <p><a href="index.html">Inicio</a></p>
+        <p><a href="tienda.html">Tienda</a></p>
+        <p><a href="quienes-somos.html">Quiénes Somos</a></p>
+        <p><a href="contactos.html">Contacto</a></p>
+      </div>
+      <div class="col-lg-3 col-md-4 mb-3">
+        <h5>Servicios</h5>
+        <p><a href="tienda.html?cat=pestañas">Extensiones de Pestañas</a></p>
+        <p><a href="tienda.html?cat=cejas-pmu">Cejas & PMU</a></p>
+        <p><a href="tienda.html?cat=insumos">Insumos</a></p>
+        <p><a href="tienda.html?cat=cursos">Cursos</a></p>
+      </div>
+      <div class="col-lg-3 col-md-4 mb-3">
+        <h5>Contacto</h5>
+        <p><i class="ri-map-pin-line me-2"></i>Concepción, Chile</p>
+        <p><i class="ri-whatsapp-line me-2"></i>+56 9 4651 0308</p>
+        <p><i class="ri-time-line me-2"></i>Lun-Sáb 10:00-19:00</p>
+      </div>
+    </div>
+    <div class="footer-bottom text-center">
+      <p class="mb-1">&copy; 2024 Dubraskalash.art. Todos los derechos reservados.</p>
+      <p class="mb-0" style="font-size:0.8rem;"><a href="politica-privacidad.html">Política de Privacidad</a> · <a href="preguntas-frecuentes.html">Preguntas Frecuentes</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- BOTTOM ACTION BAR -->
+<div class="bottom-action-bar">
+  <div class="action-bar-btns">
+    <a href="index.html"><i class="ri-home-5-line"></i><span>Inicio</span></a>
+    <a href="tienda.html"><i class="ri-store-2-line"></i><span>Tienda</span></a>
+    <a href="https://wa.me/56946510308" class="btn-wa"><i class="ri-whatsapp-line"></i><span>WhatsApp</span></a>
+    <a href="tel:+56946510308" class="btn-call"><i class="ri-phone-line"></i><span>Llamar</span></a>
+  </div>
+</div>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cart-overlay" onclick="Cart.closeSidebar()"></div>
+<div class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-sidebar-header">
+    <h5 class="mb-0"><i class="ri-shopping-cart-2-line me-2"></i>Mi Carrito</h5>
+    <button class="btn btn-sm p-0" onclick="Cart.closeSidebar()"><i class="ri-close-line fs-4"></i></button>
+  </div>
+  <div class="cart-sidebar-body">
+    <div id="cart-empty-msg" class="text-center py-5">
+      <i class="ri-shopping-bag-line" style="font-size:3rem;color:#ddd;"></i>
+      <p class="mt-3 text-muted">Tu carrito está vacío</p>
+      <a href="tienda.html" class="btn btn-gold btn-sm">Ir a la Tienda</a>
+    </div>
+    <div id="cart-sidebar-items"></div>
+  </div>
+  <div class="cart-sidebar-footer">
+    <div class="d-flex justify-content-between mb-3">
+      <strong>Total:</strong>
+      <strong id="cart-sidebar-total" style="color:var(--color-primary);">$0</strong>
+    </div>
+    <button id="cart-checkout-btn" class="btn btn-whatsapp w-100" onclick="Cart.checkout()" style="display:none;">
+      <i class="ri-whatsapp-line me-2"></i>Pedir por WhatsApp
+    </button>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/cart.js"></script>
+<script>
+let currentQty = 1;
+
+function getProduct() {
+  const params = new URLSearchParams(window.location.search);
+  const id = parseInt(params.get('id'));
+  return PRODUCTS.find(p => p.id === id) || PRODUCTS[0];
+}
+
+function renderProduct() {
+  const p = getProduct();
+  if (!p) { window.location.href = 'tienda.html'; return; }
+
+  // Update page title and meta
+  document.title = p.name + ' | Dubraskalash.art';
+  document.getElementById('breadcrumb-product').textContent = p.name;
+
+  const categoryFeatures = {
+    'pestañas': [
+      { icon: 'ri-shield-check-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Productos premium de alta calidad' },
+      { icon: 'ri-time-line', color: '#e65100', bg: '#fff3e0', text: 'Duración de 3 a 5 semanas' },
+      { icon: 'ri-heart-pulse-line', color: '#c62828', bg: '#ffebee', text: 'Seguro para pestañas naturales' },
+      { icon: 'ri-customer-service-2-line', color: '#1565c0', bg: '#e3f2fd', text: 'Incluye consulta personalizada' }
+    ],
+    'cejas-pmu': [
+      { icon: 'ri-palette-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Pigmentos de alta calidad' },
+      { icon: 'ri-time-line', color: '#e65100', bg: '#fff3e0', text: 'Resultado duradero 1-3 años' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Técnicas seguras e higiénicas' },
+      { icon: 'ri-refresh-line', color: '#1565c0', bg: '#e3f2fd', text: 'Retoque incluido' }
+    ],
+    'insumos': [
+      { icon: 'ri-truck-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Envío a todo Chile' },
+      { icon: 'ri-award-line', color: '#e65100', bg: '#fff3e0', text: 'Marca TopLine oficial' },
+      { icon: 'ri-shield-check-line', color: '#c62828', bg: '#ffebee', text: 'Garantía de calidad' },
+      { icon: 'ri-customer-service-2-line', color: '#1565c0', bg: '#e3f2fd', text: 'Asesoría técnica incluida' }
+    ],
+    'cursos': [
+      { icon: 'ri-graduation-cap-line', color: '#2e7d32', bg: '#e8f5e9', text: 'Certificación incluida' },
+      { icon: 'ri-box-3-line', color: '#e65100', bg: '#fff3e0', text: 'Kit de materiales incluido' },
+      { icon: 'ri-user-star-line', color: '#c62828', bg: '#ffebee', text: 'Dictado por Judge Internacional' },
+      { icon: 'ri-group-line', color: '#1565c0', bg: '#e3f2fd', text: 'Grupos reducidos' }
+    ]
+  };
+
+  const features = categoryFeatures[p.category] || categoryFeatures['pestañas'];
+
+  document.getElementById('productDetail').innerHTML = `
+    <div class="col-lg-6">
+      <img src="${p.image}" alt="${p.name}" class="product-main-img">
+    </div>
+    <div class="col-lg-6">
+      <span class="category-badge ${p.category} mb-3">${CATEGORIES[p.category]}</span>
+      <h1 style="font-size:2rem;line-height:1.3;" class="mb-3">${p.name}</h1>
+      <div class="mb-4">
+        <span style="font-size:2rem;color:var(--color-primary);font-weight:700;">$${p.price.toLocaleString('es-CL')}</span>
+        <span class="text-muted ms-2">CLP</span>
+      </div>
+      <p style="font-size:1.05rem;line-height:1.8;color:var(--color-text);" class="mb-4">${p.desc}</p>
+      
+      <!-- Features -->
+      <div class="mb-4">
+        ${features.map(f => `
+          <div class="feature-item">
+            <div class="feature-icon" style="background:${f.bg};">
+              <i class="${f.icon}" style="color:${f.color};font-size:1.1rem;"></i>
+            </div>
+            <span style="font-size:0.95rem;padding-top:8px;">${f.text}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Quantity + Add to Cart -->
+      <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+        <div class="qty-selector">
+          <button onclick="changeQty(-1)">−</button>
+          <span id="qtyDisplay">1</span>
+          <button onclick="changeQty(1)">+</button>
+        </div>
+        <button class="btn btn-whatsapp btn-lg flex-grow-1" onclick="Cart.addItem(${p.id}, currentQty)">
+          <i class="ri-shopping-cart-line me-2"></i>Agregar al Carrito
+        </button>
+      </div>
+
+      <!-- WhatsApp Consult -->
+      <a href="https://wa.me/56946510308?text=Hola,%20tengo%20una%20consulta%20sobre%20${encodeURIComponent(p.name)}" class="btn btn-outline-fuchsia w-100 mb-4" target="_blank">
+        <i class="ri-whatsapp-line me-2"></i>Consultar por WhatsApp
+      </a>
+
+      <!-- Trust badges -->
+      <div class="d-flex flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-2 text-muted" style="font-size:0.85rem;">
+          <i class="ri-shield-check-line" style="color:#2e7d32;"></i> Pago seguro
+        </div>
+        <div class="d-flex align-items-center gap-2 text-muted" style="font-size:0.85rem;">
+          <i class="ri-whatsapp-line" style="color:#25D366;"></i> Soporte 24/7
+        </div>
+        <div class="d-flex align-items-center gap-2 text-muted" style="font-size:0.85rem;">
+          <i class="ri-truck-line" style="color:var(--color-gold);"></i> Envíos a todo Chile
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Render related products
+  const related = PRODUCTS.filter(r => r.category === p.category && r.id !== p.id).slice(0, 3);
+  document.getElementById('relatedProducts').innerHTML = related.map(r => `
+    <div class="col-md-4">
+      <div class="product-card">
+        <div class="img-wrapper">
+          <img src="${r.image}" alt="${r.name}" class="product-img">
+        </div>
+        <div class="product-body">
+          <h5 class="product-name">${r.name}</h5>
+          <div class="product-price">$${r.price.toLocaleString('es-CL')}</div>
+          <div class="product-actions">
+            <button class="btn-add-cart" onclick="Cart.addItem(${r.id})"><i class="ri-shopping-cart-line me-1"></i>Agregar</button>
+            <a href="producto.html?id=${r.id}" class="btn-details">Ver Detalles →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function changeQty(delta) {
+  currentQty = Math.max(1, currentQty + delta);
+  document.getElementById('qtyDisplay').textContent = currentQty;
+}
+
+document.addEventListener('DOMContentLoaded', renderProduct);
+</script>
+
+</body>
+</html>
