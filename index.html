@@ -128,8 +128,8 @@
 
 <!-- IMAGEN SECUNDARIA -->
 <section class="py-4 bg-light">
-  <div class="container">
-    <img src="images/banner-dubraskalash-art-chile-biobio-pestañas.png" alt="Banner Principal Dubraskalash Concepción" class="img-fluid rounded shadow w-100">
+  <div class="container text-center">
+    <img src="images/banner-dubraskalash-art-chile-biobio-pestañas.png" alt="Banner Principal Dubraskalash Concepción" class="img-fluid rounded shadow" style="max-width:30%;margin:0 auto;">
   </div>
 </section>
 
@@ -172,6 +172,13 @@
     .gallery-item .gallery-overlay { position:absolute; inset:0; background:linear-gradient(transparent 50%,rgba(26,26,46,0.7)); opacity:0; transition:opacity 0.3s; display:flex; align-items:flex-end; padding:15px; }
     .gallery-item:hover .gallery-overlay { opacity:1; }
     .gallery-overlay span { color:#fff; font-size:0.8rem; font-weight:600; font-family:var(--font-body); }
+    /* Image Lightbox Modal */
+    .lightbox-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; display:none; align-items:center; justify-content:center; cursor:pointer; }
+    .lightbox-overlay.active { display:flex; }
+    .lightbox-overlay img { max-width:90vw; max-height:85vh; object-fit:contain; border-radius:10px; box-shadow:0 10px 40px rgba(0,0,0,0.5); cursor:default; }
+    .lightbox-close { position:absolute; top:15px; right:20px; width:44px; height:44px; background:rgba(255,255,255,0.15); border:none; border-radius:50%; color:#fff; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.3s; z-index:10000; backdrop-filter:blur(4px); }
+    .lightbox-close:hover { background:rgba(255,255,255,0.3); }
+    .lightbox-name { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:#fff; padding:8px 24px; border-radius:25px; font-size:0.9rem; font-weight:600; backdrop-filter:blur(4px); white-space:nowrap; }
   </style>
 </section>
 
@@ -364,6 +371,13 @@
   </div>
 </div>
 
+<!-- LIGHTBOX MODAL -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox(event, true)" aria-label="Cerrar"><i class="ri-close-line"></i></button>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-name" id="lightboxName"></div>
+</div>
+
 <!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/cart.js"></script>
@@ -371,6 +385,52 @@
 let PRODUCTS = [];
 // Gallery images loaded dynamically from R2
 let GALLERY_IMAGES = [];
+
+// --- LIGHTBOX ---
+let lightboxOpen = false;
+
+function openLightbox(imgSrc, imgName) {
+  const overlay = document.getElementById('lightboxOverlay');
+  const img = document.getElementById('lightboxImg');
+  const nameEl = document.getElementById('lightboxName');
+  img.src = imgSrc;
+  nameEl.textContent = imgName || '';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  lightboxOpen = true;
+  // Push state so Back button closes modal instead of navigating away
+  history.pushState({ lightbox: true }, '');
+}
+
+function closeLightbox(event, force) {
+  // If clicking on the image itself, don't close (only close on overlay click or X button)
+  if (!force && event && event.target && event.target.id === 'lightboxImg') return;
+  const overlay = document.getElementById('lightboxOverlay');
+  if (!overlay.classList.contains('active')) return;
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+  document.getElementById('lightboxImg').src = '';
+  lightboxOpen = false;
+}
+
+// Back button: close lightbox instead of leaving the page
+window.addEventListener('popstate', function(e) {
+  if (lightboxOpen) {
+    closeLightbox(null, true);
+    // Don't go back - just close the modal
+    // Push current state back so we stay on the same page
+    history.pushState(null, '');
+    e.preventDefault();
+  }
+});
+
+// ESC key closes lightbox
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && lightboxOpen) {
+    closeLightbox(null, true);
+    history.pushState(null, '');
+  }
+});
 
 document.addEventListener('DOMContentLoaded', async function() {
   // Load products from API
@@ -425,7 +485,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       const name = decodeURIComponent(img.split('/').pop()).replace(/\.[^.]+$/,'').replace(/[-_]/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
       return `
         <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-          <div class="gallery-item" onclick="window.open('${img}','_blank')">
+          <div class="gallery-item" onclick="openLightbox('${img.replace(/'/g, "\\'")}','${name.replace(/'/g, "\\'")}')">
             <img src="${img}" alt="${name}" loading="lazy">
             <div class="gallery-overlay"><span>${name}</span></div>
           </div>

@@ -578,13 +578,26 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-1px);
 }
 .product-card .btn-details {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
   color: var(--color-gold);
   font-size: 0.8rem;
-  text-decoration: none;
   font-weight: 600;
+  text-decoration: none;
+  border: 1.5px solid var(--color-gold);
+  border-radius: 8px;
+  padding: 8px 14px;
+  transition: all 0.3s;
+  cursor: pointer;
+  white-space: nowrap;
 }
 .product-card .btn-details:hover {
-  color: var(--color-primary);
+  background: var(--color-gold);
+  color: #fff;
+  border-color: var(--color-gold);
+  transform: translateY(-1px);
 }
 
 /* VALUE CARDS */
