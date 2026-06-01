@@ -73,8 +73,7 @@ function generateToken() {
 }
 
 async function ensureTables(db) {
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS products (
+  await db.prepare(`CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       price INTEGER NOT NULL,
@@ -84,23 +83,25 @@ async function ensureTables(db) {
       sort_order INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE IF NOT EXISTS categories (
+    )`).run();
+
+  await db.prepare(`CREATE TABLE IF NOT EXISTS categories (
       slug TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       group_name TEXT DEFAULT 'Productos',
       sort_order INTEGER DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS admin_settings (
+    )`).run();
+
+  await db.prepare(`CREATE TABLE IF NOT EXISTS admin_settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS sessions (
+    )`).run();
+
+  await db.prepare(`CREATE TABLE IF NOT EXISTS sessions (
       token TEXT PRIMARY KEY,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       expires_at DATETIME NOT NULL
-    );
-  `);
+    )`).run();
 }
 
 async function seedData(db) {
