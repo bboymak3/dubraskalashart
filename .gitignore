@@ -1,0 +1,6 @@
+
+# Optimization backups
+images_backup/
+
+# Wrangler cache
+.wrangler/
