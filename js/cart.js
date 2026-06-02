@@ -7,6 +7,25 @@
 // Product cache for cart operations
 let _productCache = [];
 
+// Parse image field: returns array of URLs
+function parseImages(imageField) {
+  if (!imageField) return [];
+  if (typeof imageField === 'string') {
+    imageField = imageField.trim();
+    if (imageField.startsWith('[')) {
+      try { return JSON.parse(imageField); } catch(e) { return imageField ? [imageField] : []; }
+    }
+    return imageField ? [imageField] : [];
+  }
+  return [];
+}
+
+// Get the primary (first) image from a product
+function getPrimaryImage(product) {
+  const images = parseImages(product.image);
+  return images[0] || '';
+}
+
 // Cart Manager
 const Cart = {
   STORAGE_KEY: 'dubraska_cart',
@@ -63,12 +82,33 @@ const Cart = {
   },
 
   addItem(productId, qty = 1) {
-    // Find product in cache
-    const product = _productCache.find(p => p.id === productId);
-    if (!product) return;
+    // Find product in cache, localStorage, or API (async)
+    let product = _productCache.find(p => p.id === productId);
 
+    // Fallback: try localStorage cache
+    if (!product) {
+      try {
+        const cached = localStorage.getItem('dubraska_products_cache');
+        if (cached) {
+          const all = JSON.parse(cached);
+          product = all.find(p => p.id === productId);
+          if (product) _productCache = all;
+        }
+      } catch(e) {}
+    }
+
+    // If still not found, try fetching from API and add when ready
+    if (!product) {
+      this._addItemAsync(productId, qty);
+      return;
+    }
+
+    this._addItemNow(product, qty);
+  },
+
+  _addItemNow(product, qty) {
     const items = this.getItems();
-    const existing = items.find(i => i.id === productId);
+    const existing = items.find(i => i.id === product.id);
 
     if (existing) {
       existing.qty += qty;
@@ -77,13 +117,26 @@ const Cart = {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.image,
+        image: getPrimaryImage(product),
         qty: qty
       });
     }
 
     this.saveItems(items);
     this.showToast(product.name);
+  },
+
+  async _addItemAsync(productId, qty) {
+    const product = await this.getProductById(productId);
+    if (!product) {
+      console.warn('Cart.addItem: Product not found for id', productId);
+      return;
+    }
+    // Update cache
+    if (!_productCache.find(p => p.id === productId)) {
+      _productCache.push(product);
+    }
+    this._addItemNow(product, qty);
   },
 
   removeItem(productId) {
@@ -124,11 +177,22 @@ const Cart = {
   },
 
   updateBadge() {
-    const badges = document.querySelectorAll('.cart-badge');
     const count = this.getCount();
+    // Navbar badges
+    const badges = document.querySelectorAll('.cart-badge');
     badges.forEach(badge => {
       badge.textContent = count;
       badge.style.display = count > 0 ? 'inline-block' : 'none';
+    });
+    // Bottom bar cart badges
+    const barBadges = document.querySelectorAll('.cart-badge-bar');
+    barBadges.forEach(badge => {
+      badge.textContent = count;
+      if (count > 0) {
+        badge.classList.add('visible');
+      } else {
+        badge.classList.remove('visible');
+      }
     });
   },
 

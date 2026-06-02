@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Eventos & Captacion | Dubraskalash.art</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #ad1457;
+      --color-primary-light: #c2185b;
+      --color-dark: #1a1a2e;
+      --color-gold: #c9a84c;
+      --color-secondary: #fef4f8;
+      --color-white: #ffffff;
+      --font-heading: 'Playfair Display', serif;
+      --font-body: 'Lato', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: #f5f5f7;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    /* === LOGIN === */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--color-dark) 0%, #2d1b3d 50%, var(--color-dark) 100%);
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: 24px;
+      max-width: 420px;
+      width: 100%;
+      padding: 40px 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .login-card .logo {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      color: var(--color-dark);
+      margin-bottom: 4px;
+    }
+
+    .login-card .logo i { color: var(--color-gold); }
+
+    .login-card .subtitle {
+      color: #999;
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    .login-card .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: var(--font-body);
+      transition: all 0.2s;
+      background: #fafafa;
+      outline: none;
+      margin-bottom: 16px;
+    }
+
+    .login-card .form-input:focus {
+      border-color: var(--color-primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(173,20,87,0.1);
+    }
+
+    .btn-primary-custom {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #880e4f 100%);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary-custom:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(173,20,87,0.35); }
+
+    .btn-outline-custom {
+      padding: 10px 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      background: #fff;
+      color: #555;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-outline-custom:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+    .btn-sm { padding: 6px 14px; font-size: 0.82rem; border-radius: 8px; }
+
+    /* === HEADER === */
+    .admin-header {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .admin-header .logo-text {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      color: var(--color-dark);
+      font-weight: 700;
+    }
+
+    .admin-header .logo-text i { color: var(--color-gold); font-size: 1rem; }
+
+    /* === TABS === */
+    .admin-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 16px 0 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-tab {
+      padding: 10px 18px;
+      border: none;
+      background: #fff;
+      color: #888;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: var(--font-body);
+      border-radius: 12px 12px 0 0;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .admin-tab.active {
+      background: var(--color-dark);
+      color: #fff;
+    }
+
+    .admin-tab:hover:not(.active) { background: #f0f0f0; }
+
+    /* === CARDS === */
+    .admin-card {
+      background: #fff;
+      border-radius: 0 12px 12px 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .admin-card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .admin-card-header h5 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .admin-card-body { padding: 16px 24px; }
+
+    /* === STATS === */
+    .stat-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .stat-number { font-size: 1.5rem; font-weight: 800; color: var(--color-dark); }
+    .stat-label { font-size: 0.78rem; color: #999; font-weight: 600; }
+
+    /* === EVENT ROW === */
+    .event-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 0;
+      border-bottom: 1px solid #f5f5f5;
+      flex-wrap: wrap;
+    }
+
+    .event-row:last-child { border-bottom: none; }
+
+    .event-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .event-info { min-width: 180px; flex: 1; }
+    .event-name { font-weight: 700; font-size: 0.95rem; color: var(--color-dark); }
+    .event-meta { font-size: 0.8rem; color: #999; margin-top: 3px; }
+
+    .badge-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-active { background: #e8f5e9; color: #2e7d32; }
+    .badge-closed { background: #ffebee; color: #c62828; }
+    .badge-leads { background: #e3f2fd; color: #1565c0; }
+
+    .prod-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn-action {
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.15rem;
+      transition: all 0.2s;
+    }
+
+    .btn-view { background: #e3f2fd; color: #1565c0; }
+    .btn-view:hover { background: #bbdefb; }
+    .btn-edit { background: #fff3e0; color: #e65100; }
+    .btn-edit:hover { background: #ffe0b2; }
+    .btn-delete { background: #ffebee; color: #c62828; }
+    .btn-delete:hover { background: #ffcdd2; }
+
+    /* === QR PERMANENTE CARD === */
+    .qr-permanent-card {
+      background: linear-gradient(135deg, var(--color-dark) 0%, #2d1b3d 100%);
+      border-radius: 16px;
+      padding: 28px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .qr-permanent-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: rgba(201,168,76,0.1);
+      border-radius: 50%;
+    }
+
+    .qr-permanent-card h5 {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      color: var(--color-gold);
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .qr-permanent-card p {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .qr-permanent-card .qr-img-wrap {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .qr-permanent-card .qr-img-wrap img {
+      display: block;
+      max-width: 200px;
+      border-radius: 8px;
+    }
+
+    .qr-url-row {
+      display: flex;
+      gap: 8px;
+      position: relative;
+    }
+
+    .qr-url-row input {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      outline: none;
+    }
+
+    .qr-url-row button {
+      padding: 10px 16px;
+      background: var(--color-gold);
+      color: var(--color-dark);
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* === EMPTY STATE === */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: #bbb;
+    }
+
+    .empty-state i { font-size: 3rem; margin-bottom: 12px; display: block; }
+    .empty-state h5 { font-weight: 700; color: #999; margin-bottom: 4px; }
+    .empty-state p { font-size: 0.88rem; }
+
+    /* === MODALS === */
+    .modal-custom .modal-content {
+      border: none;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .modal-custom .modal-header {
+      border-bottom: 1px solid #f0f0f0;
+      padding: 20px 24px;
+    }
+
+    .modal-custom .modal-body { padding: 24px; }
+    .modal-custom .modal-footer { border-top: 1px solid #f0f0f0; padding: 16px 24px; }
+
+    .form-label-custom {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-input-custom {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e8e8e8;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: var(--font-body);
+      transition: all 0.2s;
+      background: #fafafa;
+      outline: none;
+    }
+
+    .form-input-custom:focus {
+      border-color: var(--color-primary);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(173,20,87,0.08);
+    }
+
+    /* === SETTINGS === */
+    .settings-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+    }
+
+    .settings-card h6 {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .form-group { margin-bottom: 14px; }
+
+    /* === ANIMATION === */
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* === SEARCH === */
+    .search-admin {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f5f5f5;
+      border-radius: 10px;
+      padding: 0 12px;
+    }
+
+    .search-admin i { color: #bbb; }
+
+    .search-admin input {
+      border: none;
+      background: none;
+      padding: 10px 0;
+      font-size: 0.88rem;
+      outline: none;
+      width: 180px;
+      font-family: var(--font-body);
+    }
+
+    /* Table */
+    .table { font-size: 0.88rem; }
+    .table th { font-weight: 700; color: var(--color-dark); border-bottom-width: 1px; }
+
+    /* === AUTO REFRESH BAR === */
+    .refresh-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #999;
+      font-weight: 600;
+    }
+    .refresh-bar .refresh-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse-dot 2s infinite;
+    }
+    .refresh-bar .refresh-dot.paused { background: #ff9800; animation: none; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .refresh-bar button {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.3s;
+    }
+    .refresh-bar button.spinning i { animation: spin-once 0.6s ease; }
+    @keyframes spin-once { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+    /* === MOBILE RESPONSIVE === */
+    @media (max-width: 768px) {
+      .admin-card-header { flex-direction: column; align-items: flex-start; padding: 16px; }
+      .admin-card-body { padding: 12px 16px; }
+      .event-row { gap: 10px; padding: 14px 0; }
+      .prod-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
+      .search-admin input { width: 100%; }
+      .search-admin { flex: 1; min-width: 0; }
+      .event-info { min-width: 0; width: 100%; }
+      .badge-status { font-size: 0.7rem; padding: 3px 8px; }
+      .stat-card { padding: 14px; }
+      .stat-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+      .stat-number { font-size: 1.25rem; }
+      .admin-tabs { gap: 2px; padding: 12px 0 0; }
+      .admin-tab { padding: 10px 14px; font-size: 0.82rem; }
+      .admin-header .container { padding: 0 12px; }
+      .admin-header .logo-text { font-size: 1rem; }
+      .qr-permanent-card { padding: 20px; }
+      .qr-permanent-card .qr-img-wrap img { max-width: 160px; }
+      .settings-card { padding: 18px; }
+      .btn-primary-custom, .btn-outline-custom { padding: 12px 18px; font-size: 0.88rem; }
+      .btn-sm { padding: 10px 16px; font-size: 0.88rem; }
+      .admin-card { border-radius: 0 0 12px 12px; }
+      .login-card { padding: 32px 20px; margin: 0 8px; }
+      .container { padding: 0 12px; }
+    }
+    @media (max-width: 480px) {
+      .event-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .event-icon { width: 40px; height: 40px; }
+      .btn-action { width: 40px; height: 40px; font-size: 1rem; }
+      .prod-actions { gap: 6px; width: 100%; justify-content: flex-start; }
+      .stat-card { padding: 12px; }
+      .stat-number { font-size: 1.1rem; }
+      .stat-label { font-size: 0.7rem; }
+      .admin-tab { padding: 8px 10px; font-size: 0.75rem; }
+      .admin-card-header h5 { font-size: 1rem; }
+      .btn-primary-custom.btn-sm { width: 100%; justify-content: center; }
+      .d-flex.gap-2.flex-wrap { flex-direction: column; }
+      .d-flex.gap-2.flex-wrap > * { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div class="login-wrapper" id="loginScreen">
+  <div class="login-card">
+    <div class="logo"><i class="ri-sparkling-fill"></i> DUBRASKALASH.ART</div>
+    <div class="subtitle" id="loginSubtitle">Panel de Eventos & Captacion</div>
+
+    <!-- Setup form (first visit) -->
+    <div id="setupForm" style="display:none;">
+      <p style="font-size:0.9rem;color:#666;margin-bottom:16px;">Primera vez. Configura tu clave de acceso:</p>
+      <input type="password" class="form-input" id="setupPassword" placeholder="Crear clave (min. 4 caracteres)" autocomplete="new-password">
+      <input type="password" class="form-input" id="setupPasswordConfirm" placeholder="Confirmar clave" autocomplete="new-password">
+      <button class="btn-primary-custom w-100" onclick="EventosAuth.setup()"><i class="ri-lock-line"></i> Configurar Clave</button>
+    </div>
+
+    <!-- Login form -->
+    <div id="loginForm" style="display:none;">
+      <input type="password" class="form-input" id="loginPassword" placeholder="Tu clave de acceso" autocomplete="current-password">
+      <button class="btn-primary-custom w-100" onclick="EventosAuth.login()"><i class="ri-login-box-line"></i> Ingresar</button>
+    </div>
+
+    <div id="loginError" style="display:none;color:#c62828;font-size:0.85rem;margin-top:12px;font-weight:600;"></div>
+    <div style="margin-top:20px;"><a href="index.html" style="color:var(--color-primary);font-size:0.85rem;text-decoration:none;"><i class="ri-arrow-left-line"></i> Volver al sitio</a></div>
+  </div>
+</div>
+
+<!-- ========== HEADER ========== -->
+<header class="admin-header" id="adminHeader" style="display:none;">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="logo-text"><i class="ri-sparkling-fill"></i> Eventos & Captacion</div>
+    <div class="d-flex align-items-center gap-3">
+      <div class="refresh-bar" id="refreshBar">
+        <span class="refresh-dot" id="refreshDot"></span>
+        <span id="refreshLabel">Auto: 15s</span>
+        <button id="refreshBtn" onclick="AutoRefresh.manualRefresh()" title="Refrescar ahora (click largo para pausar)"><i class="ri-refresh-line"></i></button>
+      <button id="refreshPauseBtn" onclick="AutoRefresh.toggle()" title="Pausar/Reanudar" style="font-size:0.85rem;"><i class="ri-pause-line" id="pauseIcon"></i></button>
+      </div>
+      <a href="index.html" style="color:var(--color-primary);font-size:0.85rem;text-decoration:none;font-weight:600;display:none;" class="d-none d-md-inline"><i class="ri-external-link-line"></i> Sitio</a>
+      <button class="btn-outline-custom btn-sm" onclick="EventosAuth.logout()"><i class="ri-logout-box-line"></i> Salir</button>
+    </div>
+  </div>
+</header>
+
+<!-- ========== MAIN CONTENT ========== -->
+<main id="adminContent" style="display:none;">
+  <div class="container py-4">
+
+    <!-- TABS -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="EventosTabs.switch('events')"><i class="ri-mic-line me-1"></i>Eventos</button>
+      <button class="admin-tab" onclick="EventosTabs.switch('registrations')"><i class="ri-contacts-book-line me-1"></i>Registros</button>
+      <button class="admin-tab" onclick="EventosTabs.switch('qrgeneric')"><i class="ri-qr-code-line me-1"></i>QR Permanente</button>
+      <button class="admin-tab" onclick="EventosTabs.switch('settings')"><i class="ri-settings-3-line me-1"></i>Ajustes</button>
+    </div>
+
+    <!-- EVENTS TAB -->
+    <div id="tab-events">
+      <div class="row g-3 mb-4" id="eventsStatsRow"></div>
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h5><i class="ri-mic-line me-2" style="color:var(--color-gold);"></i>Eventos & Captacion</h5>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn-primary-custom btn-sm" onclick="EventosManual.open('event')"><i class="ri-user-add-line me-1"></i>Agregar Registro</button>
+            <button class="btn-primary-custom btn-sm" onclick="EventosEvents.openCreate()"><i class="ri-add-line me-1"></i>Nuevo Evento</button>
+          </div>
+        </div>
+        <div class="admin-card-body" id="eventList"></div>
+      </div>
+    </div>
+
+    <!-- REGISTRATIONS TAB -->
+    <div id="tab-registrations" style="display:none;">
+      <div class="row g-3 mb-4" id="regsStatsRow"></div>
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h5><i class="ri-contacts-book-line me-2" style="color:#1565c0;"></i>Registros Genericos</h5>
+          <div class="d-flex gap-2 flex-wrap">
+            <div class="search-admin">
+              <i class="ri-search-line"></i>
+              <input type="text" placeholder="Buscar..." oninput="EventosRegs.filter(this.value)">
+            </div>
+            <button class="btn-primary-custom btn-sm" onclick="EventosManual.open('generic')"><i class="ri-user-add-line me-1"></i>Agregar</button>
+            <button class="btn-outline-custom btn-sm" onclick="EventosRegs.exportCSV()"><i class="ri-download-line me-1"></i>CSV</button>
+          </div>
+        </div>
+        <div class="admin-card-body" id="regList"></div>
+      </div>
+    </div>
+
+    <!-- QR GENERIC TAB -->
+    <div id="tab-qrgeneric" style="display:none;">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="qr-permanent-card">
+            <h5><i class="ri-qr-code-line me-2"></i>QR Permanente de Registro</h5>
+            <p>Este QR es generico y no esta vinculado a ningun evento. Envielo a cualquier persona para captar su informacion de contacto. Funciona siempre.</p>
+            <div class="qr-img-wrap">
+              <img id="genericQrImg" alt="QR Permanente">
+            </div>
+            <div class="qr-url-row">
+              <input type="text" id="genericQrUrl" readonly>
+              <button onclick="EventosQR.copyUrl()"><i class="ri-file-copy-line me-1"></i>Copiar</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="admin-card" style="border-radius:16px;">
+            <div class="admin-card-header">
+              <h5><i class="ri-information-line me-2" style="color:var(--color-gold);"></i>Como usar el QR Permanente</h5>
+            </div>
+            <div class="admin-card-body">
+              <div style="font-size:0.9rem;line-height:1.7;color:#555;">
+                <p><strong><i class="ri-send-plane-line" style="color:var(--color-primary);"></i> WhatsApp:</strong> Envie la URL del QR por WhatsApp a clientes potenciales. Ellos escanean y se registran desde su celular.</p>
+                <p class="mt-3"><strong><i class="ri-printer-line" style="color:var(--color-primary);"></i> Imprimir:</strong> Imprima el QR y coloquelo en tarjetas de presentacion, flyers o en su local.</p>
+                <p class="mt-3"><strong><i class="ri-instagram-line" style="color:var(--color-primary);"></i> Redes Sociales:</strong> Comparta la URL en su biografia de Instagram o en stories.</p>
+                <p class="mt-3"><strong><i class="ri-mail-line" style="color:var(--color-primary);"></i> Email:</strong> Incluya la URL en sus correos electronicos o newsletters.</p>
+                <hr style="margin:16px 0;">
+                <p style="font-size:0.82rem;color:#999;">Los registros que lleguen por este QR aparecen en la pestana <strong>"Registros"</strong> y se almacenan en la tabla <code>registrations</code> independiente de los eventos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div id="tab-settings" style="display:none;">
+      <div class="settings-card">
+        <h6><i class="ri-lock-line me-2"></i>Cambiar Clave de Acceso</h6>
+        <div class="form-group">
+          <label class="form-label-custom">Clave Actual</label>
+          <input type="password" class="form-input-custom" id="evtCurrentPassword" placeholder="Clave actual">
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Nueva Clave</label>
+          <input type="password" class="form-input-custom" id="evtNewPassword" placeholder="Nueva clave (minimo 4 caracteres)">
+        </div>
+        <button class="btn-primary-custom" onclick="EventosSettings.changePassword()"><i class="ri-check-line me-1"></i>Cambiar</button>
+      </div>
+      <div class="settings-card">
+        <h6><i class="ri-information-line me-2"></i>Informacion</h6>
+        <p class="text-muted" style="font-size:0.85rem;">Este panel gestiona los <strong>eventos y captacion de contactos</strong>. Los datos se almacenan en Cloudflare D1. Las imagenes QR se generan con un servicio externo.</p>
+        <div class="row g-3 mt-2">
+          <div class="col-md-6"><small class="text-muted">Base de datos</small><p class="fw-bold mb-0">D1: generico_db</p></div>
+          <div class="col-md-6"><small class="text-muted">Sitio</small><p class="fw-bold mb-0"><a href="https://dubraskalashart.pages.dev" target="_blank" style="color:var(--color-primary);">dubraskalashart.pages.dev</a></p></div>
+          <div class="col-md-6"><small class="text-muted">Panel Admin Tienda</small><p class="fw-bold mb-0"><a href="admin.html" style="color:var(--color-primary);">admin.html</a></p></div>
+          <div class="col-md-6"><small class="text-muted">Pagina de Captacion</small><p class="fw-bold mb-0"><a href="captacion.html" style="color:var(--color-primary);">captacion.html</a></p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ========== EVENT MODAL ========== -->
+<div class="modal fade modal-custom" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventModalTitle">Nuevo Evento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="eventId">
+        <div class="form-group">
+          <label class="form-label-custom">Nombre del Evento *</label>
+          <input type="text" class="form-input-custom" id="eventNameInput" placeholder="Ej: Congreso Lash Chile 2026">
+        </div>
+        <div class="form-group" id="eventSlugGroup" style="display:none;">
+          <label class="form-label-custom">Slug (URL)</label>
+          <input type="text" class="form-input-custom" id="eventSlug" placeholder="congreso-lash-chile-2026">
+          <small class="text-muted">Se genera automaticamente desde el nombre</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Descripcion</label>
+          <textarea class="form-input-custom" id="eventDescription" placeholder="Describe el evento..." style="min-height:80px;"></textarea>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label-custom">Ubicacion</label>
+            <input type="text" class="form-input-custom" id="eventLocation" placeholder="Ej: Santiago, Chile">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-custom">Fecha</label>
+            <input type="date" class="form-input-custom" id="eventDate">
+          </div>
+        </div>
+        <div class="form-group mt-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="eventActive" checked>
+            <label class="form-check-label fw-bold" for="eventActive">Evento activo (acepta registros)</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn-primary-custom" onclick="EventosEvents.save()"><i class="ri-save-line me-1"></i>Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal fade modal-custom" id="qrModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="ri-qr-code-line me-2"></i>Codigo QR del Evento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <h6 id="qrEventName" class="mb-3"></h6>
+        <img id="qrCodeImg" alt="QR Code" style="max-width:260px;margin:0 auto 20px;display:block;border-radius:12px;border:2px solid #eee;">
+        <div class="input-group mb-3">
+          <input type="text" class="form-input-custom" id="qrUrl" readonly style="font-size:0.8rem;">
+          <button class="btn-primary-custom" style="border-radius:0 12px 12px 0;" onclick="EventosEvents.copyQRUrl()"><i class="ri-file-copy-line"></i></button>
+        </div>
+        <p class="text-muted" style="font-size:0.85rem;">Muestra este QR en la proyeccion durante tu charla. Los asistentes escanean y se registran desde su celular.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADS MODAL -->
+<div class="modal fade modal-custom" id="leadsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="ri-user-follow-line me-2" style="color:var(--color-primary);"></i>Registros - <span id="leadsEventName"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="fw-bold"><span id="leadsCount">0</span> registros</span>
+          <button class="btn-primary-custom btn-sm" id="leadsExportBtn"><i class="ri-download-line me-1"></i>Exportar CSV</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover" style="font-size:0.88rem;">
+            <thead>
+              <tr><th>Nombre</th><th>Telefono</th><th>Email</th><th>Notas</th><th>Fecha</th></tr>
+            </thead>
+            <tbody id="leadsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MANUAL REGISTRATION MODAL -->
+<div class="modal fade modal-custom" id="manualRegModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="manualRegTitle"><i class="ri-user-add-line me-2" style="color:var(--color-primary);"></i>Agregar Registro Manual</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="manualRegMode" value="generic">
+        <div class="form-group" id="manualEventSelectGroup">
+          <label class="form-label-custom">Evento *</label>
+          <select class="form-input-custom" id="manualEventSelect" style="cursor:pointer;">
+            <option value="">Seleccionar evento...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Nombre completo *</label>
+          <input type="text" class="form-input-custom" id="manualRegName" placeholder="Ej: Maria Gonzalez">
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label-custom">Telefono</label>
+              <input type="tel" class="form-input-custom" id="manualRegPhone" placeholder="+56 9 1234 5678">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label-custom">Email</label>
+              <input type="email" class="form-input-custom" id="manualRegEmail" placeholder="correo@ejemplo.com">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Notas</label>
+          <textarea class="form-input-custom" id="manualRegNotes" placeholder="Notas opcionales..." style="min-height:60px;"></textarea>
+        </div>
+        <div id="manualRegError" style="display:none;color:#c62828;font-size:0.85rem;font-weight:600;margin-top:8px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn-primary-custom" onclick="EventosManual.save()"><i class="ri-user-add-line me-1"></i>Registrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API = '/api';
+const AUTH_TYPE = 'eventos';
+
+// ============================================
+// AUTH
+// ============================================
+const EventosAuth = {
+  token: localStorage.getItem('eventos_token') || '',
+
+  async init() {
+    try {
+      const resp = await fetch(`${API}/auth?action=status&type=${AUTH_TYPE}`);
+      const data = await resp.json();
+
+      if (data.configured) {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('setupForm').style.display = 'none';
+        document.getElementById('loginSubtitle').textContent = 'Ingresa tu clave de acceso';
+
+        // Try auto-login with saved token
+        if (this.token) {
+          const validResp = await fetch(`${API}/auth?action=status&type=${AUTH_TYPE}`, {
+            headers: { 'Authorization': `Bearer ${this.token}` }
+          });
+          // If token is still valid, go to admin
+          // We can't fully verify here, but let's try loading data
+          try {
+            const testResp = await fetch(`${API}/events`, { headers: { 'Authorization': `Bearer ${this.token}` } });
+            if (testResp.ok) {
+              this.showAdmin();
+              return;
+            }
+          } catch(e) {}
+        }
+      } else {
+        document.getElementById('setupForm').style.display = 'block';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('loginSubtitle').textContent = 'Configura tu clave de acceso';
+      }
+    } catch(e) {
+      document.getElementById('loginError').textContent = 'Error de conexion';
+      document.getElementById('loginError').style.display = 'block';
+    }
+  },
+
+  async setup() {
+    const pw = document.getElementById('setupPassword').value;
+    const pw2 = document.getElementById('setupPasswordConfirm').value;
+    const errEl = document.getElementById('loginError');
+
+    if (!pw || pw.length < 4) { errEl.textContent = 'Minimo 4 caracteres'; errEl.style.display = 'block'; return; }
+    if (pw !== pw2) { errEl.textContent = 'Las claves no coinciden'; errEl.style.display = 'block'; return; }
+
+    try {
+      const resp = await fetch(`${API}/auth?action=setup&type=${AUTH_TYPE}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        this.token = data.token;
+        localStorage.setItem('eventos_token', this.token);
+        this.showAdmin();
+      } else {
+        errEl.textContent = data.error || 'Error';
+        errEl.style.display = 'block';
+      }
+    } catch(e) {
+      errEl.textContent = 'Error de conexion';
+      errEl.style.display = 'block';
+    }
+  },
+
+  async login() {
+    const pw = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+
+    if (!pw) { errEl.textContent = 'Ingresa tu clave'; errEl.style.display = 'block'; return; }
+
+    try {
+      const resp = await fetch(`${API}/auth?action=login&type=${AUTH_TYPE}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        this.token = data.token;
+        localStorage.setItem('eventos_token', this.token);
+        this.showAdmin();
+      } else {
+        errEl.textContent = data.error || 'Clave incorrecta';
+        errEl.style.display = 'block';
+      }
+    } catch(e) {
+      errEl.textContent = 'Error de conexion';
+      errEl.style.display = 'block';
+    }
+  },
+
+  async logout() {
+    try {
+      await fetch(`${API}/auth?action=logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${this.token}` }
+      });
+    } catch(e) {}
+    this.token = '';
+    localStorage.removeItem('eventos_token');
+    AutoRefresh.stop();
+    document.getElementById('adminContent').style.display = 'none';
+    document.getElementById('adminHeader').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginError').style.display = 'none';
+  },
+
+  showAdmin() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminHeader').style.display = 'block';
+    document.getElementById('adminContent').style.display = 'block';
+    EventosEvents.load();
+    EventosRegs.load();
+    EventosQR.init();
+    AutoRefresh.start();
+  }
+};
+
+// ============================================
+// TABS
+// ============================================
+const EventosTabs = {
+  current: 'events',
+
+  switch(tab) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    event.target.closest('.admin-tab').classList.add('active');
+
+    ['events', 'registrations', 'qrgeneric', 'settings'].forEach(t => {
+      const el = document.getElementById('tab-' + t);
+      if (el) el.style.display = t === tab ? 'block' : 'none';
+    });
+
+    this.current = tab;
+    if (tab === 'events') EventosEvents.load();
+    if (tab === 'registrations') EventosRegs.load();
+    AutoRefresh.reset();
+  }
+};
+
+// ============================================
+// EVENTS
+// ============================================
+const EventosEvents = {
+  events: [],
+  selectedEventId: null,
+
+  async load() {
+    try {
+      const resp = await fetch(`${API}/events`, {
+        headers: { 'Authorization': `Bearer ${EventosAuth.token}` }
+      });
+      this.events = (await resp.json()) || [];
+      this.render();
+      this.renderStats();
+    } catch(e) {
+      console.error('Error loading events:', e);
+      document.getElementById('eventList').innerHTML = '<div class="empty-state"><i class="ri-error-warning-line"></i><h5>Error de conexion</h5></div>';
+    }
+  },
+
+  renderStats() {
+    const totalLeads = this.events.reduce((sum, e) => sum + (e.lead_count || 0), 0);
+    const activeEvents = this.events.filter(e => e.active).length;
+    const stats = [
+      { icon:'ri-mic-line', color:'var(--color-gold)', bg:'#fff8e1', number:this.events.length, label:'Total Eventos' },
+      { icon:'ri-user-follow-line', color:'#1565c0', bg:'#e3f2fd', number:totalLeads, label:'Total Registros' },
+      { icon:'ri-check-double-line', color:'#2e7d32', bg:'#e8f5e9', number:activeEvents, label:'Activos' },
+      { icon:'ri-close-circle-line', color:'#c62828', bg:'#ffebee', number:this.events.length - activeEvents, label:'Cerrados' }
+    ];
+    document.getElementById('eventsStatsRow').innerHTML = stats.map(s => `
+      <div class="col-6 col-md-3"><div class="stat-card fade-in"><div class="d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:${s.bg};"><i class="${s.icon}" style="color:${s.color};"></i></div>
+        <div><div class="stat-number">${s.number}</div><div class="stat-label">${s.label}</div></div>
+      </div></div></div>`).join('');
+  },
+
+  render() {
+    const list = document.getElementById('eventList');
+    if (this.events.length === 0) {
+      list.innerHTML = '<div class="empty-state"><i class="ri-mic-line"></i><h5>No hay eventos</h5><p>Crea tu primer evento de captacion</p></div>';
+      return;
+    }
+    list.innerHTML = this.events.map(ev => `
+      <div class="event-row fade-in">
+        <div class="event-icon" style="${ev.active ? 'background:#e8f5e9;color:#2e7d32;' : 'background:#ffebee;color:#c62828;'}">
+          <i class="${ev.active ? 'ri-mic-line' : 'ri-mic-off-line'}"></i>
+        </div>
+        <div class="event-info">
+          <div class="event-name">${ev.name}</div>
+          <div class="event-meta">
+            ${ev.event_date ? `<i class="ri-calendar-line"></i> ${ev.event_date} &nbsp;` : ''}
+            ${ev.location ? `<i class="ri-map-pin-line"></i> ${ev.location}` : ''}
+          </div>
+        </div>
+        <span class="badge-status ${ev.active ? 'badge-active' : 'badge-closed'}">
+          ${ev.active ? 'Activo' : 'Cerrado'}
+        </span>
+        <span class="badge-status badge-leads">
+          <i class="ri-user-line"></i> ${ev.lead_count || 0}
+        </span>
+        <div class="prod-actions">
+          <button class="btn-action btn-view" onclick="EventosEvents.showQR(${ev.id})" title="QR / Enlace"><i class="ri-qr-code-line"></i></button>
+          <button class="btn-action btn-view" onclick="EventosEvents.viewLeads(${ev.id})" title="Ver Registros"><i class="ri-user-follow-line"></i></button>
+          <button class="btn-action btn-edit" onclick="EventosEvents.openEdit(${ev.id})" title="Editar"><i class="ri-edit-line"></i></button>
+          <button class="btn-action btn-delete" onclick="EventosEvents.openDelete(${ev.id})" title="Eliminar"><i class="ri-delete-bin-line"></i></button>
+        </div>
+      </div>`).join('');
+  },
+
+  openCreate() {
+    document.getElementById('eventModalTitle').textContent = 'Nuevo Evento';
+    document.getElementById('eventId').value = '';
+    document.getElementById('eventNameInput').value = '';
+    document.getElementById('eventSlug').value = '';
+    document.getElementById('eventDescription').value = '';
+    document.getElementById('eventLocation').value = '';
+    document.getElementById('eventDate').value = '';
+    document.getElementById('eventActive').checked = true;
+    document.getElementById('eventSlugGroup').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('eventModal')).show();
+  },
+
+  openEdit(id) {
+    const ev = this.events.find(e => e.id === id);
+    if (!ev) return;
+    document.getElementById('eventModalTitle').textContent = 'Editar Evento';
+    document.getElementById('eventId').value = ev.id;
+    document.getElementById('eventNameInput').value = ev.name;
+    document.getElementById('eventSlug').value = ev.slug;
+    document.getElementById('eventDescription').value = ev.description || '';
+    document.getElementById('eventLocation').value = ev.location || '';
+    document.getElementById('eventDate').value = ev.event_date || '';
+    document.getElementById('eventActive').checked = !!ev.active;
+    document.getElementById('eventSlugGroup').style.display = 'block';
+    new bootstrap.Modal(document.getElementById('eventModal')).show();
+  },
+
+  async save() {
+    const id = document.getElementById('eventId').value;
+    const name = document.getElementById('eventNameInput').value.trim();
+    const slug = document.getElementById('eventSlug').value.trim() || name.toLowerCase().replace(/[^a-z0-9áéíóúñ]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const description = document.getElementById('eventDescription').value.trim();
+    const location = document.getElementById('eventLocation').value.trim();
+    const event_date = document.getElementById('eventDate').value;
+    const active = document.getElementById('eventActive').checked ? 1 : 0;
+
+    if (!name) { alert('El nombre es obligatorio'); return; }
+
+    try {
+      let resp;
+      if (id) {
+        resp = await fetch(`${API}/events/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${EventosAuth.token}` },
+          body: JSON.stringify({ name, slug, description, location, event_date, active })
+        });
+      } else {
+        resp = await fetch(`${API}/events`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${EventosAuth.token}` },
+          body: JSON.stringify({ name, slug, description, location, event_date, active })
+        });
+      }
+      const data = await resp.json();
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+        this.load();
+      } else { alert('Error: ' + (data.error || '')); }
+    } catch(e) { alert('Error de conexion'); }
+  },
+
+  openDelete(id) {
+    const ev = this.events.find(e => e.id === id);
+    if (!ev) return;
+    if (confirm(`¿Eliminar "${ev.name}" y sus ${ev.lead_count || 0} registros?`)) {
+      this.confirmDelete(id);
+    }
+  },
+
+  async confirmDelete(id) {
+    try {
+      const resp = await fetch(`${API}/events/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${EventosAuth.token}` }
+      });
+      const data = await resp.json();
+      if (data.success) this.load();
+      else alert('Error: ' + (data.error || ''));
+    } catch(e) { alert('Error de conexion'); }
+  },
+
+  showQR(id) {
+    const ev = this.events.find(e => e.id === id);
+    if (!ev) return;
+    const url = `${window.location.origin}/captacion.html?e=${ev.slug}`;
+    document.getElementById('qrEventName').textContent = ev.name;
+    document.getElementById('qrUrl').value = url;
+    document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(url)}&bgcolor=FFFFFF&color=1A1A2E`;
+    new bootstrap.Modal(document.getElementById('qrModal')).show();
+  },
+
+  copyQRUrl() {
+    const input = document.getElementById('qrUrl');
+    navigator.clipboard.writeText(input.value).then(() => alert('Enlace copiado!')).catch(() => { input.select(); document.execCommand('copy'); alert('Enlace copiado!'); });
+  },
+
+  async viewLeads(eventId) {
+    this.selectedEventId = eventId;
+    const ev = this.events.find(e => e.id === eventId);
+    if (!ev) return;
+
+    try {
+      const resp = await fetch(`${API}/leads?event_id=${eventId}`, {
+        headers: { 'Authorization': `Bearer ${EventosAuth.token}` }
+      });
+      const leads = (await resp.json()) || [];
+
+      document.getElementById('leadsEventName').textContent = ev.name;
+      document.getElementById('leadsCount').textContent = leads.length;
+      document.getElementById('leadsExportBtn').onclick = () => this.exportCSV(eventId);
+
+      const tbody = document.getElementById('leadsTableBody');
+      if (leads.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Aun no hay registros</td></tr>';
+      } else {
+        tbody.innerHTML = leads.map(l => `
+          <tr>
+            <td>${l.name}</td>
+            <td>${l.phone || '-'}</td>
+            <td>${l.email || '-'}</td>
+            <td>${l.notes || '-'}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <small class="text-muted">${l.created_at ? new Date(l.created_at + 'Z').toLocaleString('es-CL') : ''}</small>
+                <button class="btn-action btn-delete" style="width:26px;height:26px;font-size:0.75rem;" onclick="EventosEvents.deleteLead(${l.id})" title="Eliminar"><i class="ri-delete-bin-line"></i></button>
+              </div>
+            </td>
+          </tr>`).join('');
+      }
+      new bootstrap.Modal(document.getElementById('leadsModal')).show();
+    } catch(e) {
+      alert('Error cargando registros: ' + e.message);
+    }
+  },
+
+  async deleteLead(leadId) {
+    if (!confirm('¿Eliminar este registro?')) return;
+    try {
+      const resp = await fetch(`${API}/leads/${leadId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${EventosAuth.token}` }
+      });
+      const data = await resp.json();
+      if (data.success) { this.viewLeads(this.selectedEventId); this.load(); }
+    } catch(e) { alert('Error eliminando registro'); }
+  },
+
+  async exportCSV(eventId) {
+    try {
+      const resp = await fetch(`${API}/leads/export?event_id=${eventId}`, {
+        headers: { 'Authorization': `Bearer ${EventosAuth.token}` }
+      });
+      if (!resp.ok) { alert('Error exportando'); return; }
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `leads_evento_${eventId}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch(e) { alert('Error exportando: ' + e.message); }
+  }
+};
+
+// ============================================
+// REGISTRATIONS (GENERIC)
+// ============================================
+const EventosRegs = {
+  regs: [],
+  filtered: [],
+
+  async load() {
+    try {
+      const resp = await fetch(`${API}/registrations`, {
+        headers: { 'Authorization': `Bearer ${EventosAuth.token}` }
+      });
+      this.regs = (await resp.json()) || [];
+      this.filtered = [...this.regs];
+      this.render();
+      this.renderStats();
+    } catch(e) {
+      console.error('Error loading registrations:', e);
+      document.getElementById('regList').innerHTML = '<div class="empty-state"><i class="ri-error-warning-line"></i><h5>Error de conexion</h5></div>';
+    }
+  },
+
+  renderStats() {
+    const stats = [
+      { icon:'ri-contacts-book-line', color:'#1565c0', bg:'#e3f2fd', number:this.regs.length, label:'Total Registros' },
+      { icon:'ri-qr-code-line', color:'var(--color-gold)', bg:'#fff8e1', number:this.regs.filter(r => r.source === 'qr').length, label:'Via QR' },
+      { icon:'ri-mail-line', color:'#2e7d32', bg:'#e8f5e9', number:this.regs.filter(r => r.email).length, label:'Con Email' },
+      { icon:'ri-phone-line', color:'#e65100', bg:'#fff3e0', number:this.regs.filter(r => r.phone).length, label:'Con Telefono' }
+    ];
+    document.getElementById('regsStatsRow').innerHTML = stats.map(s => `
+      <div class="col-6 col-md-3"><div class="stat-card fade-in"><div class="d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:${s.bg};"><i class="${s.icon}" style="color:${s.color};"></i></div>
+        <div><div class="stat-number">${s.number}</div><div class="stat-label">${s.label}</div></div>
+      </div></div></div>`).join('');
+  },
+
+  filter(query) {
+    const q = query.toLowerCase().trim();
+    if (!q) { this.filtered = [...this.regs]; }
+    else {
+      this.filtered = this.regs.filter(r =>
+        (r.name || '').toLowerCase().includes(q) ||
+        (r.phone || '').toLowerCase().includes(q) ||
+        (r.email || '').toLowerCase().includes(q)
+      );
+    }
+    this.render();
+  },
+
+  render() {
+    const list = document.getElementById('regList');
+    if (this.filtered.length === 0) {
+      list.innerHTML = '<div class="empty-state"><i class="ri-contacts-book-line"></i><h5>No hay registros genericos</h5><p>Los registros llegaran cuando alguien escanee el QR permanente</p></div>';
+      return;
+    }
+    list.innerHTML = this.filtered.map(r => `
+      <div class="event-row fade-in">
+        <div class="event-icon" style="background:#e3f2fd;color:#1565c0;">
+          <i class="ri-user-line"></i>
+        </div>
+        <div class="event-info">
+          <div class="event-name">${r.name}</div>
+          <div class="event-meta">
+            ${r.phone ? `<i class="ri-phone-line"></i> ${r.phone} &nbsp;` : ''}
+            ${r.email ? `<i class="ri-mail-line"></i> ${r.email}` : ''}
+          </div>
+        </div>
+        <span class="badge-status" style="background:#f3e5f5;color:#7b1fa2;">
+          <i class="ri-qr-code-line"></i> QR
+        </span>
+        ${r.notes ? `<span class="badge-status" style="background:#fff3e0;color:#e65100;font-size:0.72rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.notes}</span>` : ''}
+        <div class="prod-actions">
+          <button class="btn-action btn-delete" onclick="EventosRegs.deleteReg(${r.id})" title="Eliminar"><i class="ri-delete-bin-line"></i></button>
+        </div>
+      </div>`).join('');
+  },
+
+  async deleteReg(id) {
+    if (!confirm('¿Eliminar este registro?')) return;
+    try {
+      const resp = await fetch(`${API}/registrations/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${EventosAuth.token}` }
+      });
+      const data = await resp.json();
+      if (data.success) this.load();
+    } catch(e) { alert('Error eliminando'); }
+  },
+
+  async exportCSV() {
+    try {
+      const resp = await fetch(`${API}/registrations/export`, {
+        headers: { 'Authorization': `Bearer ${EventosAuth.token}` }
+      });
+      if (!resp.ok) { alert('Error exportando'); return; }
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `registros_genericos_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch(e) { alert('Error exportando: ' + e.message); }
+  }
+};
+
+// ============================================
+// QR PERMANENTE
+// ============================================
+const EventosQR = {
+  init() {
+    const url = `${window.location.origin}/captacion.html?mode=registro`;
+    document.getElementById('genericQrUrl').value = url;
+    document.getElementById('genericQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&bgcolor=FFFFFF&color=1A1A2E`;
+  },
+
+  copyUrl() {
+    const input = document.getElementById('genericQrUrl');
+    navigator.clipboard.writeText(input.value).then(() => alert('URL copiada al portapapeles!')).catch(() => { input.select(); document.execCommand('copy'); alert('URL copiada!'); });
+  }
+};
+
+// ============================================
+// SETTINGS
+// ============================================
+const EventosSettings = {
+  async changePassword() {
+    const current = document.getElementById('evtCurrentPassword').value;
+    const newPass = document.getElementById('evtNewPassword').value;
+    if (!current || !newPass) { alert('Completa ambos campos'); return; }
+    if (newPass.length < 4) { alert('Minimo 4 caracteres'); return; }
+    try {
+      const resp = await fetch(`${API}/auth?action=change-password&type=${AUTH_TYPE}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${EventosAuth.token}` },
+        body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        alert('Clave cambiada exitosamente!');
+        document.getElementById('evtCurrentPassword').value = '';
+        document.getElementById('evtNewPassword').value = '';
+      } else { alert('Error: ' + (data.error || '')); }
+    } catch(e) { alert('Error de conexion'); }
+  }
+};
+
+// ============================================
+// MANUAL REGISTRATION
+// ============================================
+const EventosManual = {
+  mode: 'generic', // 'generic' or 'event'
+  preselectedEventId: null,
+
+  open(mode, eventId) {
+    this.mode = mode || 'generic';
+    this.preselectedEventId = eventId || null;
+
+    // Reset form
+    document.getElementById('manualRegName').value = '';
+    document.getElementById('manualRegPhone').value = '';
+    document.getElementById('manualRegEmail').value = '';
+    document.getElementById('manualRegNotes').value = '';
+    document.getElementById('manualRegError').style.display = 'none';
+
+    const eventGroup = document.getElementById('manualEventSelectGroup');
+    const title = document.getElementById('manualRegTitle');
+
+    if (this.mode === 'event') {
+      // Show event selector
+      eventGroup.style.display = 'block';
+      title.innerHTML = '<i class="ri-user-add-line me-2" style="color:var(--color-primary);"></i>Agregar Registro a Evento';
+
+      // Populate event dropdown
+      const select = document.getElementById('manualEventSelect');
+      select.innerHTML = '<option value="">Seleccionar evento...</option>';
+      EventosEvents.events.forEach(ev => {
+        const opt = document.createElement('option');
+        opt.value = ev.id;
+        opt.textContent = ev.name + (ev.active ? '' : ' (Cerrado)');
+        if (this.preselectedEventId && ev.id === this.preselectedEventId) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      // If only one active event, auto-select it
+      const activeEvents = EventosEvents.events.filter(e => e.active);
+      if (activeEvents.length === 1) {
+        select.value = activeEvents[0].id;
+      }
+    } else {
+      // Generic mode - hide event selector
+      eventGroup.style.display = 'none';
+      title.innerHTML = '<i class="ri-user-add-line me-2" style="color:var(--color-primary);"></i>Agregar Registro Generico';
+    }
+
+    document.getElementById('manualRegMode').value = this.mode;
+    new bootstrap.Modal(document.getElementById('manualRegModal')).show();
+  },
+
+  async save() {
+    const mode = document.getElementById('manualRegMode').value;
+    const name = document.getElementById('manualRegName').value.trim();
+    const phone = document.getElementById('manualRegPhone').value.trim();
+    const email = document.getElementById('manualRegEmail').value.trim();
+    const notes = document.getElementById('manualRegNotes').value.trim();
+    const errEl = document.getElementById('manualRegError');
+
+    if (!name) {
+      errEl.textContent = 'El nombre es obligatorio';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    try {
+      let resp;
+
+      if (mode === 'event') {
+        const eventId = document.getElementById('manualEventSelect').value;
+        if (!eventId) {
+          errEl.textContent = 'Selecciona un evento';
+          errEl.style.display = 'block';
+          return;
+        }
+        resp = await fetch(`${API}/leads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event_id: parseInt(eventId), name, phone, email, notes })
+        });
+      } else {
+        resp = await fetch(`${API}/registrations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, email, source: 'manual', notes })
+        });
+      }
+
+      const data = await resp.json();
+
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('manualRegModal')).hide();
+        // Refresh the relevant lists
+        if (mode === 'event') {
+          EventosEvents.load();
+        } else {
+          EventosRegs.load();
+        }
+        AutoRefresh.reset();
+      } else {
+        errEl.textContent = data.error || 'Error al registrar';
+        errEl.style.display = 'block';
+      }
+    } catch(e) {
+      errEl.textContent = 'Error de conexion';
+      errEl.style.display = 'block';
+    }
+  }
+};
+
+// ============================================
+// AUTO REFRESH
+// ============================================
+const AutoRefresh = {
+  interval: null,
+  countdown: 15,
+  secondsLeft: 15,
+  paused: false,
+  countdownInterval: null,
+
+  start() {
+    this.stop();
+    this.secondsLeft = this.countdown;
+    this.paused = false;
+    document.getElementById('refreshDot').classList.remove('paused');
+    const icon = document.getElementById('pauseIcon');
+    if (icon) { icon.className = 'ri-pause-line'; }
+    this.updateLabel();
+
+    this.countdownInterval = setInterval(() => {
+      if (this.paused) return;
+      this.secondsLeft--;
+      this.updateLabel();
+      if (this.secondsLeft <= 0) {
+        this.refresh();
+        this.secondsLeft = this.countdown;
+      }
+    }, 1000);
+  },
+
+  stop() {
+    if (this.countdownInterval) clearInterval(this.countdownInterval);
+    this.countdownInterval = null;
+  },
+
+  toggle() {
+    this.paused = !this.paused;
+    const dot = document.getElementById('refreshDot');
+    const icon = document.getElementById('pauseIcon');
+    if (this.paused) {
+      dot.classList.add('paused');
+      if (icon) icon.className = 'ri-play-line';
+      this.updateLabel();
+    } else {
+      dot.classList.remove('paused');
+      if (icon) icon.className = 'ri-pause-line';
+      this.secondsLeft = this.countdown;
+      this.updateLabel();
+    }
+  },
+
+  updateLabel() {
+    const label = document.getElementById('refreshLabel');
+    if (this.paused) {
+      label.textContent = 'Pausado';
+    } else {
+      label.textContent = this.secondsLeft + 's';
+    }
+  },
+
+  async manualRefresh() {
+    const btn = document.getElementById('refreshBtn');
+    btn.classList.add('spinning');
+    setTimeout(() => btn.classList.remove('spinning'), 600);
+    await this.refresh();
+    this.secondsLeft = this.countdown;
+    this.updateLabel();
+  },
+
+  async refresh() {
+    // Refresh current tab
+    const tab = EventosTabs.current;
+    if (tab === 'events') {
+      await EventosEvents.load();
+    } else if (tab === 'registrations') {
+      await EventosRegs.load();
+    }
+  },
+
+  reset() {
+    this.secondsLeft = this.countdown;
+    this.updateLabel();
+  }
+};
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+  EventosAuth.init();
+  document.getElementById('loginPassword').addEventListener('keypress', e => { if (e.key === 'Enter') EventosAuth.login(); });
+  document.getElementById('setupPasswordConfirm').addEventListener('keypress', e => { if (e.key === 'Enter') EventosAuth.setup(); });
+});
+</script>
+</body>
+</html>

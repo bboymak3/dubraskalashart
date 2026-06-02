@@ -416,6 +416,26 @@ h1, h2, h3, h4, h5, h6 {
   gap: 4px;
   border-right: 1px solid #f0f0f0;
 }
+/* Scroll-reveal animation: only active when .bar-animated is present */
+.bottom-action-bar.bar-animated .action-bar-btns a {
+  gap: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.bottom-action-bar.bar-animated .action-bar-btns a span {
+  display: block;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease;
+  margin-top: 0;
+  line-height: 1;
+}
+.bottom-action-bar.bar-animated.bar-expanded .action-bar-btns a span {
+  max-height: 18px;
+  opacity: 1;
+  margin-top: 4px;
+}
 .action-bar-btns a:last-child {
   border-right: none;
 }
@@ -441,6 +461,34 @@ h1, h2, h3, h4, h5, h6 {
   background: #b0154d;
   color: #fff;
 }
+.action-bar-btns a.btn-cart-bar {
+  position: relative;
+  background: #f3e5f5;
+  color: var(--color-primary);
+}
+.action-bar-btns a.btn-cart-bar:hover {
+  background: #e1bee7;
+  color: var(--color-primary);
+}
+.action-bar-btns a.btn-cart-bar .cart-badge-bar {
+  position: absolute;
+  top: 4px;
+  right: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.action-bar-btns a.btn-cart-bar .cart-badge-bar.visible {
+  display: flex;
+}
 
 /* Desktop bottom bar */
 @media (min-width: 992px) {
@@ -450,6 +498,9 @@ h1, h2, h3, h4, h5, h6 {
   }
   .action-bar-btns a i {
     font-size: 1.3rem;
+  }
+  .bottom-action-bar.bar-animated.bar-expanded .action-bar-btns a span {
+    max-height: 20px;
   }
 }
 

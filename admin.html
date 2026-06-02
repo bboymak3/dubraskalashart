@@ -153,6 +153,18 @@
     .saved-bar.active { display:block; }
     .fade-in { animation: fadeIn 0.4s ease; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .prod-images-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .prod-image-item { position: relative; width: 100px; height: 100px; border-radius: 10px; overflow: hidden; border: 2px solid #eee; cursor: grab; transition: all 0.2s; }
+    .prod-image-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .prod-image-item.is-primary { border-color: var(--color-primary); }
+    .prod-image-item img { width: 100%; height: 100%; object-fit: cover; }
+    .prod-image-item .badge-primary { position: absolute; top: 4px; left: 4px; background: var(--color-primary); color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; z-index: 2; }
+    .prod-image-item .btn-remove { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; z-index: 2; }
+    .prod-image-item .btn-remove:hover { background: #c62828; }
+    .prod-image-item .btn-move { position: absolute; bottom: 4px; right: 4px; display: flex; gap: 2px; z-index: 2; }
+    .prod-image-item .btn-move button { width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; }
+    .prod-image-item .btn-move button:hover { background: var(--color-primary); }
+    .prod-images-empty { padding: 20px; text-align: center; color: #999; border: 2px dashed #e8e8e8; border-radius: 12px; font-size: 0.85rem; }
     @media(max-width:768px) {
       .product-row { flex-wrap:wrap; padding:15px; }
       .product-row .prod-price { margin-left:auto; }
@@ -234,8 +246,9 @@
     <!-- TABS -->
     <div class="admin-tabs">
       <button class="admin-tab active" onclick="AdminTabs.switch('products')"><i class="ri-box-3-line me-1"></i>Productos</button>
-      <button class="admin-tab" onclick="AdminTabs.switch('categories')"><i class="ri-layout-grid-line me-1"></i>Categorías</button>
-      <button class="admin-tab" onclick="AdminTabs.switch('images')"><i class="ri-image-line me-1"></i>Imágenes</button>
+      <button class="admin-tab" onclick="AdminTabs.switch('categories')"><i class="ri-layout-grid-line me-1"></i>Categorias</button>
+      <button class="admin-tab" onclick="AdminTabs.switch('images')"><i class="ri-image-line me-1"></i>Imagenes</button>
+      <a class="admin-tab" href="eventos.html" style="text-decoration:none;"><i class="ri-mic-line me-1"></i>Eventos</a>
       <button class="admin-tab" onclick="AdminTabs.switch('settings')"><i class="ri-settings-3-line me-1"></i>Ajustes</button>
     </div>
 
@@ -293,6 +306,8 @@
       </div>
     </div>
 
+    <!-- EVENTS TAB - Moved to eventos.html -->
+
     <!-- SETTINGS TAB -->
     <div id="tab-settings" style="display:none;">
       <div class="settings-card">
@@ -345,22 +360,21 @@
             <label class="form-label-custom">Categoría *</label>
             <select class="form-input-custom" id="prodCategory"></select>
           </div>
-          <div class="col-md-6">
-            <label class="form-label-custom">Imagen</label>
-            <input type="text" class="form-input-custom" id="prodImage" placeholder="images/producto.jpg o /api/images/xxx.jpg">
-          </div>
           <div class="col-12">
             <label class="form-label-custom">Descripción</label>
             <textarea class="form-input-custom" id="prodDesc" placeholder="Describe el producto..."></textarea>
           </div>
-          <div class="col-12" id="imagePreviewContainer" style="display:none;">
-            <label class="form-label-custom">Vista previa</label>
-            <img id="imagePreview" class="img-preview" alt="Preview">
+          <!-- Hidden input for image JSON array -->
+          <input type="hidden" id="prodImage">
+          <!-- Multi-image gallery -->
+          <div class="col-12">
+            <label class="form-label-custom">Imágenes del producto</label>
+            <div id="prodImagesGrid" class="prod-images-grid"></div>
           </div>
         </div>
-        <!-- Image Gallery -->
+        <!-- Image Gallery (click to ADD to product images) -->
         <div class="mt-3">
-          <label class="form-label-custom">Seleccionar imagen del sitio</label>
+          <label class="form-label-custom">Agregar imagen del sitio <small style="font-weight:400;text-transform:none;">(clic para agregar)</small></label>
           <div class="d-flex flex-wrap gap-2" id="imageGallery" style="max-height:160px;overflow-y:auto;"></div>
         </div>
         <!-- Upload new image -->
@@ -370,7 +384,7 @@
           <button class="btn-outline-custom btn-sm" onclick="document.getElementById('modalImageUpload').click()">
             <i class="ri-upload-cloud-line me-1"></i>Subir desde computador
           </button>
-          <small class="text-muted ms-2">Se guarda en Cloudflare R2</small>
+          <small class="text-muted ms-2">Se agrega al producto y se guarda en R2</small>
         </div>
       </div>
       <div class="modal-footer">
@@ -436,10 +450,32 @@
   </div>
 </div>
 
+<!-- Event/QR/Leads modals moved to eventos.html -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const API = '/api';
 let SITE_IMAGES = []; // Loaded dynamically from R2
+
+// ============================================
+// IMAGE PARSING HELPERS
+// ============================================
+function parseImages(imageField) {
+  if (!imageField) return [];
+  if (typeof imageField === 'string') {
+    imageField = imageField.trim();
+    if (imageField.startsWith('[')) {
+      try { return JSON.parse(imageField); } catch(e) { return imageField ? [imageField] : []; }
+    }
+    return imageField ? [imageField] : [];
+  }
+  return [];
+}
+
+function getPrimaryImage(product) {
+  const images = parseImages(product.image);
+  return images[0] || '';
+}
 
 // ============================================
 // IMAGE OPTIMIZATION (client-side)
@@ -711,7 +747,7 @@ const AdminProducts = {
     }
     list.innerHTML = this.filtered.map(p => `
       <div class="product-row fade-in">
-        <img src="${p.image || p.desc}" alt="" class="prod-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2255%22 height=%2255%22><rect fill=%22%23f8f8f8%22 width=%2255%22 height=%2255%22 rx=%2212%22/><text x=%2227%22 y=%2233%22 text-anchor=%22middle%22 fill=%22%23ccc%22 font-size=%2214%22>?</text></svg>'">
+        <img src="${getPrimaryImage(p) || p.desc}" alt="" class="prod-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2255%22 height=%2255%22><rect fill=%22%23f8f8f8%22 width=%2255%22 height=%2255%22 rx=%2212%22/><text x=%2227%22 y=%2233%22 text-anchor=%22middle%22 fill=%22%23ccc%22 font-size=%2214%22>?</text></svg>'">
         <div class="prod-info">
           <div class="prod-name">${p.name}</div>
           <span class="cat-badge" style="background:${this.getCatColor(p.category)}18;color:${this.getCatColor(p.category)};">${this.categories[p.category] || p.category}</span>
@@ -754,7 +790,8 @@ const AdminProducts = {
     document.getElementById('prodCategory').innerHTML = this.getCategoryOptions();
     document.getElementById('prodImage').value = '';
     document.getElementById('prodDesc').value = '';
-    document.getElementById('imagePreviewContainer').style.display = 'none';
+    this.prodImages = [];
+    this.renderProductImages();
     this.renderImageGallery();
     new bootstrap.Modal(document.getElementById('productModal')).show();
   },
@@ -769,13 +806,9 @@ const AdminProducts = {
     document.getElementById('prodCategory').innerHTML = this.getCategoryOptions(p.category);
     document.getElementById('prodImage').value = p.image || '';
     document.getElementById('prodDesc').value = p.desc || p.description || '';
-    if (p.image) {
-      document.getElementById('imagePreview').src = p.image;
-      document.getElementById('imagePreviewContainer').style.display = 'block';
-    } else {
-      document.getElementById('imagePreviewContainer').style.display = 'none';
-    }
-    this.renderImageGallery(p.image);
+    this.prodImages = parseImages(p.image);
+    this.renderProductImages();
+    this.renderImageGallery();
     new bootstrap.Modal(document.getElementById('productModal')).show();
   },
 
@@ -789,19 +822,64 @@ const AdminProducts = {
     return html;
   },
 
-  renderImageGallery(selectedImg = '') {
-    document.getElementById('imageGallery').innerHTML = SITE_IMAGES.map(img => `
-      <img src="${img}" alt="" class="gallery-thumb ${img===selectedImg?'selected':''}"
-           onclick="AdminProducts.selectImage('${img}', this)" onerror="this.style.display='none'" title="${img.split('/').pop()}">
+  renderProductImages() {
+    const grid = document.getElementById('prodImagesGrid');
+    if (!this.prodImages || this.prodImages.length === 0) {
+      grid.innerHTML = '<div class="prod-images-empty"><i class="ri-image-add-line" style="font-size:1.5rem;display:block;margin-bottom:5px;"></i>Agrega imágenes desde la galería o sube una nueva</div>';
+      return;
+    }
+    grid.innerHTML = this.prodImages.map((img, i) => `
+      <div class="prod-image-item ${i===0?'is-primary':''}" onclick="AdminProducts.setAsPrimary(${i})" title="${i===0?'Imagen principal':'Clic para hacer principal'}">
+        <img src="${img}" alt="Imagen ${i+1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f8f8f8%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23ccc%22 font-size=%2212%22>?</text></svg>'">
+        ${i===0?'<span class="badge-primary">Principal</span>':''}
+        <button class="btn-remove" onclick="event.stopPropagation();AdminProducts.removeImageFromProduct(${i})" title="Eliminar"><i class="ri-close-line"></i></button>
+        <div class="btn-move">
+          ${i>0?`<button onclick="event.stopPropagation();AdminProducts.moveImage(${i},-1)" title="Mover arriba"><i class="ri-arrow-up-s-line"></i></button>`:''}
+          ${i<this.prodImages.length-1?`<button onclick="event.stopPropagation();AdminProducts.moveImage(${i},1)" title="Mover abajo"><i class="ri-arrow-down-s-line"></i></button>`:''}
+        </div>
+      </div>
     `).join('');
   },
 
-  selectImage(img, el) {
-    document.getElementById('prodImage').value = img;
-    document.getElementById('imagePreview').src = img;
-    document.getElementById('imagePreviewContainer').style.display = 'block';
-    document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('selected'));
-    if (el) el.classList.add('selected');
+  addImageToProduct(url) {
+    if (!url) return;
+    if (!this.prodImages) this.prodImages = [];
+    // Avoid duplicates
+    if (this.prodImages.includes(url)) return;
+    this.prodImages.push(url);
+    document.getElementById('prodImage').value = JSON.stringify(this.prodImages);
+    this.renderProductImages();
+  },
+
+  removeImageFromProduct(index) {
+    this.prodImages.splice(index, 1);
+    document.getElementById('prodImage').value = this.prodImages.length > 0 ? JSON.stringify(this.prodImages) : '';
+    this.renderProductImages();
+  },
+
+  moveImage(index, direction) {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= this.prodImages.length) return;
+    const temp = this.prodImages[index];
+    this.prodImages[index] = this.prodImages[newIndex];
+    this.prodImages[newIndex] = temp;
+    document.getElementById('prodImage').value = JSON.stringify(this.prodImages);
+    this.renderProductImages();
+  },
+
+  setAsPrimary(index) {
+    if (index === 0) return;
+    const img = this.prodImages.splice(index, 1)[0];
+    this.prodImages.unshift(img);
+    document.getElementById('prodImage').value = JSON.stringify(this.prodImages);
+    this.renderProductImages();
+  },
+
+  renderImageGallery() {
+    document.getElementById('imageGallery').innerHTML = SITE_IMAGES.map(img => `
+      <img src="${img}" alt="" class="gallery-thumb"
+           onclick="AdminProducts.addImageToProduct('${img}')" onerror="this.style.display='none'" title="Agregar: ${img.split('/').pop()}">
+    `).join('');
   },
 
   async handleUpload(event) {
@@ -821,9 +899,7 @@ const AdminProducts = {
       });
       const data = await resp.json();
       if (data.success) {
-        document.getElementById('prodImage').value = data.url;
-        document.getElementById('imagePreview').src = data.url;
-        document.getElementById('imagePreviewContainer').style.display = 'block';
+        this.addImageToProduct(data.url);
       } else {
         alert('Error: ' + (data.error || 'No se pudo subir'));
       }
@@ -1087,6 +1163,10 @@ const AdminImages = {
 };
 
 // ============================================
+// EVENTS & LEADS - Moved to eventos.html
+// ============================================
+
+// ============================================
 // SETTINGS
 // ============================================
 const AdminSettings = {
@@ -1117,9 +1197,6 @@ const AdminSettings = {
 document.addEventListener('DOMContentLoaded', function() {
   AdminAuth.init();
   document.getElementById('adminPassword').addEventListener('keypress', e => { if (e.key === 'Enter') AdminAuth.login(); });
-  document.getElementById('prodImage').addEventListener('input', function() {
-    if (this.value) { document.getElementById('imagePreview').src = this.value; document.getElementById('imagePreviewContainer').style.display = 'block'; }
-  });
 });
 </script>
 </body>

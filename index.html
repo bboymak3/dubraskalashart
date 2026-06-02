@@ -77,9 +77,15 @@
     <a class="navbar-brand" href="index.html">
       <i class="ri-sparkling-fill" style="color: var(--color-gold);"></i> DUBRASKALASH.ART
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="ri-menu-line" style="font-size: 1.5rem; color: var(--color-dark);"></span>
-    </button>
+    <div class="d-flex align-items-center gap-2 ms-auto ms-lg-0 order-lg-last">
+      <span class="cart-icon-wrapper" onclick="Cart.toggleSidebar()">
+        <i class="ri-shopping-cart-2-line"></i>
+        <span class="cart-badge">0</span>
+      </span>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="ri-menu-line" style="font-size: 1.5rem; color: var(--color-dark);"></span>
+      </button>
+    </div>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item"><a class="nav-link active" href="index.html">Inicio</a></li>
@@ -87,12 +93,6 @@
         <li class="nav-item"><a class="nav-link" href="quienes-somos.html">Quiénes Somos</a></li>
         <li class="nav-item"><a class="nav-link" href="contactos.html">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="preguntas-frecuentes.html">FAQ</a></li>
-        <li class="nav-item me-2">
-          <span class="cart-icon-wrapper" onclick="Cart.toggleSidebar()">
-            <i class="ri-shopping-cart-2-line"></i>
-            <span class="cart-badge">0</span>
-          </span>
-        </li>
         <li class="nav-item">
           <a href="https://wa.me/56946510308" class="btn btn-gold btn-sm rounded-pill px-4">
             <i class="ri-whatsapp-line me-1"></i> Agendar
@@ -321,7 +321,7 @@
       </div>
       <div class="col-lg-3 col-md-4 mb-3">
         <h5>Contacto</h5>
-        <p><i class="ri-map-pin-line me-2"></i>Concepción, Chile</p>
+        <p><i class="ri-map-pin-line me-2"></i>O'Higgins 1117, Concepción, Chile</p>
         <p><i class="ri-whatsapp-line me-2"></i>+56 9 4651 0308</p>
         <p><i class="ri-time-line me-2"></i>Lun-Sáb 10:00-19:00</p>
       </div>
@@ -338,6 +338,7 @@
   <div class="action-bar-btns">
     <a href="index.html" class="active"><i class="ri-home-5-line"></i><span>Inicio</span></a>
     <a href="tienda.html"><i class="ri-store-2-line"></i><span>Tienda</span></a>
+    <a href="#" onclick="Cart.toggleSidebar(); return false;" class="btn-cart-bar"><i class="ri-shopping-cart-2-line"></i><span>Carrito</span><span class="cart-badge-bar">0</span></a>
     <a href="https://wa.me/56946510308" class="btn-wa"><i class="ri-whatsapp-line"></i><span>WhatsApp</span></a>
     <a href="tel:+56946510308" class="btn-call"><i class="ri-phone-line"></i><span>Llamar</span></a>
   </div>
@@ -387,6 +388,25 @@ let PRODUCTS = [];
 // Gallery images loaded dynamically from R2
 let GALLERY_IMAGES = [];
 
+// Parse image field: returns array of URLs
+function parseImages(imageField) {
+  if (!imageField) return [];
+  if (typeof imageField === 'string') {
+    imageField = imageField.trim();
+    if (imageField.startsWith('[')) {
+      try { return JSON.parse(imageField); } catch(e) { return imageField ? [imageField] : []; }
+    }
+    return imageField ? [imageField] : [];
+  }
+  return [];
+}
+
+// Get the primary (first) image from a product
+function getPrimaryImage(product) {
+  const images = parseImages(product.image);
+  return images[0] || '';
+}
+
 // --- LIGHTBOX ---
 let lightboxOpen = false;
 
@@ -402,7 +422,10 @@ function openLightbox(imgSrc, imgName) {
   lightboxOpen = true;
 
   // Check if this image belongs to a product
-  const matchedProduct = PRODUCTS.find(p => p.image === imgSrc);
+  const matchedProduct = PRODUCTS.find(p => {
+    const imgs = parseImages(p.image);
+    return imgs.includes(imgSrc) || p.image === imgSrc;
+  });
   if (matchedProduct) {
     productBtn.href = 'producto.html?id=' + matchedProduct.id;
     productBtn.style.display = 'inline-flex';
@@ -470,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       <div class="col-md-6 col-lg-3">
         <div class="service-card">
           <div class="service-img-wrapper">
-            <img src="${p.image}" alt="${p.name}">
+            <img src="${getPrimaryImage(p)}" alt="${p.name}">
           </div>
           <div class="service-body">
             <h4 class="service-title">${p.name}</h4>
