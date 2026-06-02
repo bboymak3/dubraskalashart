@@ -297,8 +297,8 @@ async function renderProduct() {
     ]
   };
 
-  const productCategories = CATEGORY_GROUPS['Productos'];
-  const isProduct = productCategories.includes(p.category);
+  const productCategories = CATEGORY_GROUPS['Productos'] || [];
+  const isProduct = productCategories.some(c => c.slug === p.category);
 
   const features = categoryFeatures[p.category] || categoryFeatures['adhesivos'];
 

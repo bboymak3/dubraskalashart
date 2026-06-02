@@ -4,5 +4,6 @@ Allow: /
 # Sitemap
 Sitemap: https://dubraskalashart.pages.dev/sitemap.xml
 
-# API routes - no need to index
+# Private pages
+Disallow: /admin.html
 Disallow: /api/
