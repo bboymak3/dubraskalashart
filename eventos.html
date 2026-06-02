@@ -259,18 +259,18 @@
     .badge-closed { background: #ffebee; color: #c62828; }
     .badge-leads { background: #e3f2fd; color: #1565c0; }
 
-    .prod-actions { display: flex; gap: 6px; }
+    .prod-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .btn-action {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.15rem;
       transition: all 0.2s;
     }
 
@@ -465,11 +465,80 @@
     .table { font-size: 0.88rem; }
     .table th { font-weight: 700; color: var(--color-dark); border-bottom-width: 1px; }
 
+    /* === AUTO REFRESH BAR === */
+    .refresh-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #999;
+      font-weight: 600;
+    }
+    .refresh-bar .refresh-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse-dot 2s infinite;
+    }
+    .refresh-bar .refresh-dot.paused { background: #ff9800; animation: none; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .refresh-bar button {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.3s;
+    }
+    .refresh-bar button.spinning i { animation: spin-once 0.6s ease; }
+    @keyframes spin-once { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+    /* === MOBILE RESPONSIVE === */
     @media (max-width: 768px) {
-      .admin-card-header { flex-direction: column; align-items: flex-start; }
-      .event-row { gap: 10px; }
-      .prod-actions { margin-left: 0; }
-      .search-admin input { width: 140px; }
+      .admin-card-header { flex-direction: column; align-items: flex-start; padding: 16px; }
+      .admin-card-body { padding: 12px 16px; }
+      .event-row { gap: 10px; padding: 14px 0; }
+      .prod-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
+      .search-admin input { width: 100%; }
+      .search-admin { flex: 1; min-width: 0; }
+      .event-info { min-width: 0; width: 100%; }
+      .badge-status { font-size: 0.7rem; padding: 3px 8px; }
+      .stat-card { padding: 14px; }
+      .stat-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+      .stat-number { font-size: 1.25rem; }
+      .admin-tabs { gap: 2px; padding: 12px 0 0; }
+      .admin-tab { padding: 10px 14px; font-size: 0.82rem; }
+      .admin-header .container { padding: 0 12px; }
+      .admin-header .logo-text { font-size: 1rem; }
+      .qr-permanent-card { padding: 20px; }
+      .qr-permanent-card .qr-img-wrap img { max-width: 160px; }
+      .settings-card { padding: 18px; }
+      .btn-primary-custom, .btn-outline-custom { padding: 12px 18px; font-size: 0.88rem; }
+      .btn-sm { padding: 10px 16px; font-size: 0.88rem; }
+      .admin-card { border-radius: 0 0 12px 12px; }
+      .login-card { padding: 32px 20px; margin: 0 8px; }
+      .container { padding: 0 12px; }
+    }
+    @media (max-width: 480px) {
+      .event-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .event-icon { width: 40px; height: 40px; }
+      .btn-action { width: 40px; height: 40px; font-size: 1rem; }
+      .prod-actions { gap: 6px; width: 100%; justify-content: flex-start; }
+      .stat-card { padding: 12px; }
+      .stat-number { font-size: 1.1rem; }
+      .stat-label { font-size: 0.7rem; }
+      .admin-tab { padding: 8px 10px; font-size: 0.75rem; }
+      .admin-card-header h5 { font-size: 1rem; }
+      .btn-primary-custom.btn-sm { width: 100%; justify-content: center; }
+      .d-flex.gap-2.flex-wrap { flex-direction: column; }
+      .d-flex.gap-2.flex-wrap > * { width: 100%; }
     }
   </style>
 </head>
@@ -505,7 +574,13 @@
   <div class="container d-flex justify-content-between align-items-center">
     <div class="logo-text"><i class="ri-sparkling-fill"></i> Eventos & Captacion</div>
     <div class="d-flex align-items-center gap-3">
-      <a href="index.html" style="color:var(--color-primary);font-size:0.85rem;text-decoration:none;font-weight:600;"><i class="ri-external-link-line"></i> Sitio</a>
+      <div class="refresh-bar" id="refreshBar">
+        <span class="refresh-dot" id="refreshDot"></span>
+        <span id="refreshLabel">Auto: 15s</span>
+        <button id="refreshBtn" onclick="AutoRefresh.manualRefresh()" title="Refrescar ahora (click largo para pausar)"><i class="ri-refresh-line"></i></button>
+      <button id="refreshPauseBtn" onclick="AutoRefresh.toggle()" title="Pausar/Reanudar" style="font-size:0.85rem;"><i class="ri-pause-line" id="pauseIcon"></i></button>
+      </div>
+      <a href="index.html" style="color:var(--color-primary);font-size:0.85rem;text-decoration:none;font-weight:600;display:none;" class="d-none d-md-inline"><i class="ri-external-link-line"></i> Sitio</a>
       <button class="btn-outline-custom btn-sm" onclick="EventosAuth.logout()"><i class="ri-logout-box-line"></i> Salir</button>
     </div>
   </div>
@@ -825,6 +900,7 @@ const EventosAuth = {
     } catch(e) {}
     this.token = '';
     localStorage.removeItem('eventos_token');
+    AutoRefresh.stop();
     document.getElementById('adminContent').style.display = 'none';
     document.getElementById('adminHeader').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
@@ -839,6 +915,7 @@ const EventosAuth = {
     EventosEvents.load();
     EventosRegs.load();
     EventosQR.init();
+    AutoRefresh.start();
   }
 };
 
@@ -860,6 +937,7 @@ const EventosTabs = {
     this.current = tab;
     if (tab === 'events') EventosEvents.load();
     if (tab === 'registrations') EventosRegs.load();
+    AutoRefresh.reset();
   }
 };
 
@@ -1242,6 +1320,91 @@ const EventosSettings = {
         document.getElementById('evtNewPassword').value = '';
       } else { alert('Error: ' + (data.error || '')); }
     } catch(e) { alert('Error de conexion'); }
+  }
+};
+
+// ============================================
+// AUTO REFRESH
+// ============================================
+const AutoRefresh = {
+  interval: null,
+  countdown: 15,
+  secondsLeft: 15,
+  paused: false,
+  countdownInterval: null,
+
+  start() {
+    this.stop();
+    this.secondsLeft = this.countdown;
+    this.paused = false;
+    document.getElementById('refreshDot').classList.remove('paused');
+    const icon = document.getElementById('pauseIcon');
+    if (icon) { icon.className = 'ri-pause-line'; }
+    this.updateLabel();
+
+    this.countdownInterval = setInterval(() => {
+      if (this.paused) return;
+      this.secondsLeft--;
+      this.updateLabel();
+      if (this.secondsLeft <= 0) {
+        this.refresh();
+        this.secondsLeft = this.countdown;
+      }
+    }, 1000);
+  },
+
+  stop() {
+    if (this.countdownInterval) clearInterval(this.countdownInterval);
+    this.countdownInterval = null;
+  },
+
+  toggle() {
+    this.paused = !this.paused;
+    const dot = document.getElementById('refreshDot');
+    const icon = document.getElementById('pauseIcon');
+    if (this.paused) {
+      dot.classList.add('paused');
+      if (icon) icon.className = 'ri-play-line';
+      this.updateLabel();
+    } else {
+      dot.classList.remove('paused');
+      if (icon) icon.className = 'ri-pause-line';
+      this.secondsLeft = this.countdown;
+      this.updateLabel();
+    }
+  },
+
+  updateLabel() {
+    const label = document.getElementById('refreshLabel');
+    if (this.paused) {
+      label.textContent = 'Pausado';
+    } else {
+      label.textContent = this.secondsLeft + 's';
+    }
+  },
+
+  async manualRefresh() {
+    const btn = document.getElementById('refreshBtn');
+    btn.classList.add('spinning');
+    setTimeout(() => btn.classList.remove('spinning'), 600);
+    await this.refresh();
+    this.secondsLeft = this.countdown;
+    this.updateLabel();
+  },
+
+  async refresh() {
+    // Refresh current tab
+    const tab = EventosTabs.current;
+    if (tab === 'events') {
+      await EventosEvents.load();
+    } else if (tab === 'registrations') {
+      await EventosRegs.load();
+    }
+  },
+
+  reset() {
+    this.secondsLeft = this.countdown;
+    this.updateLabel();
   }
 };
 
