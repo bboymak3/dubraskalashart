@@ -63,38 +63,9 @@ const Cart = {
   },
 
   addItem(productId, qty = 1) {
-    // Find product in cache, localStorage cache, or use items already in cart
-    let product = _productCache.find(p => p.id === productId);
-
-    // If not in memory cache, try localStorage cache
-    if (!product) {
-      try {
-        const cached = localStorage.getItem('dubraska_products_cache');
-        if (cached) {
-          const all = JSON.parse(cached);
-          product = all.find(p => p.id === productId);
-          if (product) _productCache = all; // Update memory cache
-        }
-      } catch(e) {}
-    }
-
-    // If still not found, check if already in cart (we have basic info there)
-    if (!product) {
-      const existingItems = this.getItems();
-      const inCart = existingItems.find(i => i.id === productId);
-      if (inCart) {
-        // Product already in cart, just increase qty
-        inCart.qty += qty;
-        this.saveItems(existingItems);
-        this.showToast(inCart.name);
-        return;
-      }
-    }
-
-    if (!product) {
-      console.warn('Cart.addItem: Product not found for id', productId);
-      return;
-    }
+    // Find product in cache
+    const product = _productCache.find(p => p.id === productId);
+    if (!product) return;
 
     const items = this.getItems();
     const existing = items.find(i => i.id === productId);
@@ -153,22 +124,11 @@ const Cart = {
   },
 
   updateBadge() {
-    const count = this.getCount();
-    // Update navbar badges
     const badges = document.querySelectorAll('.cart-badge');
+    const count = this.getCount();
     badges.forEach(badge => {
       badge.textContent = count;
       badge.style.display = count > 0 ? 'inline-block' : 'none';
-    });
-    // Update bottom bar cart badges
-    const barBadges = document.querySelectorAll('.cart-badge-bar');
-    barBadges.forEach(badge => {
-      badge.textContent = count;
-      if (count > 0) {
-        badge.classList.add('visible');
-      } else {
-        badge.classList.remove('visible');
-      }
     });
   },
 

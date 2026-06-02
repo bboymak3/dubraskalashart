@@ -441,34 +441,6 @@ h1, h2, h3, h4, h5, h6 {
   background: #b0154d;
   color: #fff;
 }
-.action-bar-btns a.btn-cart-bar {
-  position: relative;
-  background: #f3e5f5;
-  color: var(--color-primary);
-}
-.action-bar-btns a.btn-cart-bar:hover {
-  background: #e1bee7;
-  color: var(--color-primary);
-}
-.action-bar-btns a.btn-cart-bar .cart-badge-bar {
-  position: absolute;
-  top: 4px;
-  right: 12px;
-  background: var(--color-primary);
-  color: #fff;
-  font-size: 0.55rem;
-  font-weight: 700;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-.action-bar-btns a.btn-cart-bar .cart-badge-bar.visible {
-  display: flex;
-}
 
 /* Desktop bottom bar */
 @media (min-width: 992px) {

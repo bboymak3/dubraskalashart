@@ -42,15 +42,9 @@
     <a class="navbar-brand" href="index.html">
       <i class="ri-sparkling-fill" style="color: var(--color-gold);"></i> DUBRASKALASH.ART
     </a>
-    <div class="d-flex align-items-center gap-2 ms-auto ms-lg-0 order-lg-last">
-      <span class="cart-icon-wrapper" onclick="Cart.toggleSidebar()">
-        <i class="ri-shopping-cart-2-line"></i>
-        <span class="cart-badge">0</span>
-      </span>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="ri-menu-line" style="font-size: 1.5rem; color: var(--color-dark);"></span>
-      </button>
-    </div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="ri-menu-line" style="font-size: 1.5rem; color: var(--color-dark);"></span>
+    </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
@@ -58,6 +52,12 @@
         <li class="nav-item"><a class="nav-link" href="quienes-somos.html">Quiénes Somos</a></li>
         <li class="nav-item"><a class="nav-link" href="contactos.html">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="preguntas-frecuentes.html">FAQ</a></li>
+        <li class="nav-item me-2">
+          <span class="cart-icon-wrapper" onclick="Cart.toggleSidebar()">
+            <i class="ri-shopping-cart-2-line"></i>
+            <span class="cart-badge">0</span>
+          </span>
+        </li>
         <li class="nav-item">
           <a href="https://wa.me/56946510308" class="btn btn-gold btn-sm rounded-pill px-4">
             <i class="ri-whatsapp-line me-1"></i> Agendar
@@ -209,7 +209,6 @@
   <div class="action-bar-btns">
     <a href="index.html"><i class="ri-home-5-line"></i><span>Inicio</span></a>
     <a href="tienda.html"><i class="ri-store-2-line"></i><span>Tienda</span></a>
-    <a href="#" onclick="Cart.toggleSidebar(); return false;" class="btn-cart-bar"><i class="ri-shopping-cart-2-line"></i><span>Carrito</span><span class="cart-badge-bar">0</span></a>
     <a href="https://wa.me/56946510308" class="btn-wa"><i class="ri-whatsapp-line"></i><span>WhatsApp</span></a>
     <a href="tel:+56946510308" class="btn-call"><i class="ri-phone-line"></i><span>Llamar</span></a>
   </div>
