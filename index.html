@@ -388,6 +388,25 @@ let PRODUCTS = [];
 // Gallery images loaded dynamically from R2
 let GALLERY_IMAGES = [];
 
+// Parse image field: returns array of URLs
+function parseImages(imageField) {
+  if (!imageField) return [];
+  if (typeof imageField === 'string') {
+    imageField = imageField.trim();
+    if (imageField.startsWith('[')) {
+      try { return JSON.parse(imageField); } catch(e) { return imageField ? [imageField] : []; }
+    }
+    return imageField ? [imageField] : [];
+  }
+  return [];
+}
+
+// Get the primary (first) image from a product
+function getPrimaryImage(product) {
+  const images = parseImages(product.image);
+  return images[0] || '';
+}
+
 // --- LIGHTBOX ---
 let lightboxOpen = false;
 
@@ -403,7 +422,10 @@ function openLightbox(imgSrc, imgName) {
   lightboxOpen = true;
 
   // Check if this image belongs to a product
-  const matchedProduct = PRODUCTS.find(p => p.image === imgSrc);
+  const matchedProduct = PRODUCTS.find(p => {
+    const imgs = parseImages(p.image);
+    return imgs.includes(imgSrc) || p.image === imgSrc;
+  });
   if (matchedProduct) {
     productBtn.href = 'producto.html?id=' + matchedProduct.id;
     productBtn.style.display = 'inline-flex';
@@ -471,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       <div class="col-md-6 col-lg-3">
         <div class="service-card">
           <div class="service-img-wrapper">
-            <img src="${p.image}" alt="${p.name}">
+            <img src="${getPrimaryImage(p)}" alt="${p.name}">
           </div>
           <div class="service-body">
             <h4 class="service-title">${p.name}</h4>

@@ -7,6 +7,25 @@
 // Product cache for cart operations
 let _productCache = [];
 
+// Parse image field: returns array of URLs
+function parseImages(imageField) {
+  if (!imageField) return [];
+  if (typeof imageField === 'string') {
+    imageField = imageField.trim();
+    if (imageField.startsWith('[')) {
+      try { return JSON.parse(imageField); } catch(e) { return imageField ? [imageField] : []; }
+    }
+    return imageField ? [imageField] : [];
+  }
+  return [];
+}
+
+// Get the primary (first) image from a product
+function getPrimaryImage(product) {
+  const images = parseImages(product.image);
+  return images[0] || '';
+}
+
 // Cart Manager
 const Cart = {
   STORAGE_KEY: 'dubraska_cart',
@@ -98,7 +117,7 @@ const Cart = {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.image,
+        image: getPrimaryImage(product),
         qty: qty
       });
     }

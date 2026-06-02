@@ -250,6 +250,25 @@ let PRODUCTS = [];
 let CATEGORIES = {};
 let CATEGORY_GROUPS = {};
 
+// Parse image field: returns array of URLs
+function parseImages(imageField) {
+  if (!imageField) return [];
+  if (typeof imageField === 'string') {
+    imageField = imageField.trim();
+    if (imageField.startsWith('[')) {
+      try { return JSON.parse(imageField); } catch(e) { return imageField ? [imageField] : []; }
+    }
+    return imageField ? [imageField] : [];
+  }
+  return [];
+}
+
+// Get the primary (first) image from a product
+function getPrimaryImage(product) {
+  const images = parseImages(product.image);
+  return images[0] || '';
+}
+
 const Shop = {
   currentCategory: 'all',
   
@@ -387,7 +406,7 @@ const Shop = {
       <div class="col-sm-6 col-lg-4">
         <div class="product-card">
           <div class="img-wrapper">
-            <img src="${p.image}" alt="${p.name}" class="product-img">
+            <img src="${getPrimaryImage(p)}" alt="${p.name}" class="product-img">
             <span class="category-badge ${p.category}" style="position:absolute;top:10px;left:10px;">${CATEGORIES[p.category] || p.category}</span>
           </div>
           <div class="product-body">
