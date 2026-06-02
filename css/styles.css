@@ -412,9 +412,24 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-text);
   font-size: 0.7rem;
   font-weight: 600;
-  transition: all 0.2s;
-  gap: 4px;
+  transition: all 0.3s ease;
+  gap: 0;
   border-right: 1px solid #f0f0f0;
+  overflow: hidden;
+}
+.action-bar-btns a span {
+  display: block;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease;
+  margin-top: 0;
+  line-height: 1;
+}
+.bottom-action-bar.bar-expanded .action-bar-btns a span {
+  max-height: 18px;
+  opacity: 1;
+  margin-top: 4px;
 }
 .action-bar-btns a:last-child {
   border-right: none;
@@ -478,6 +493,9 @@ h1, h2, h3, h4, h5, h6 {
   }
   .action-bar-btns a i {
     font-size: 1.3rem;
+  }
+  .bottom-action-bar.bar-expanded .action-bar-btns a span {
+    max-height: 20px;
   }
 }
 
