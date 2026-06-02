@@ -111,6 +111,29 @@ async function ensureTables(db) {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       expires_at DATETIME NOT NULL
     )`).run();
+
+  // Lead capture tables
+  await db.prepare(`CREATE TABLE IF NOT EXISTS events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      location TEXT DEFAULT '',
+      event_date TEXT DEFAULT '',
+      active INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`).run();
+
+  await db.prepare(`CREATE TABLE IF NOT EXISTS leads (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      phone TEXT DEFAULT '',
+      email TEXT DEFAULT '',
+      notes TEXT DEFAULT '',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`).run();
 }
 
 async function seedData(db) {
@@ -849,6 +872,316 @@ async function r2ImagesGet(context) {
   }
 }
 
+// --- /api/events (GET, POST) ---
+
+async function eventsGet(context) {
+  const { request, env } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  try {
+    const url = new URL(request.url);
+    const activeOnly = url.searchParams.get('active') === 'true';
+
+    let query = 'SELECT * FROM events';
+    if (activeOnly) query += ' WHERE active = 1';
+    query += ' ORDER BY event_date DESC, id DESC';
+
+    const result = await db.prepare(query).all();
+
+    // Add lead count for each event
+    const eventsWithCounts = [];
+    for (const ev of (result.results || [])) {
+      const leadCount = await db.prepare('SELECT COUNT(*) as cnt FROM leads WHERE event_id = ?').bind(ev.id).first();
+      eventsWithCounts.push({ ...ev, lead_count: leadCount?.cnt || 0 });
+    }
+
+    return jsonResponse(eventsWithCounts);
+  } catch (e) {
+    return errorResponse('Error fetching events: ' + e.message, 500);
+  }
+}
+
+async function eventsPost(context) {
+  const { request, env } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const body = await request.json();
+    const { name, slug, description, location, event_date, active } = body;
+
+    if (!name || !slug) return errorResponse('Name and slug are required', 400);
+
+    // Generate slug from name if not provided properly
+    const finalSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+
+    const result = await db.prepare(
+      'INSERT INTO events (slug, name, description, location, event_date, active) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(finalSlug, name, description || '', location || '', event_date || '', active !== undefined ? (active ? 1 : 0) : 1).run();
+
+    const newId = result.meta?.last_row_id;
+
+    return jsonResponse({ success: true, id: newId, slug: finalSlug, message: 'Event created' }, 201);
+  } catch (e) {
+    if (e.message?.includes('UNIQUE constraint')) {
+      return errorResponse('Ese slug ya existe. Usa otro nombre.', 400);
+    }
+    return errorResponse('Error creating event: ' + e.message, 500);
+  }
+}
+
+// --- /api/events/:id (GET, PUT, DELETE) ---
+
+async function eventsIdGet(context) {
+  const { request, env, params } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  try {
+    const id = parseInt(params.id);
+    if (isNaN(id)) return errorResponse('Invalid event ID', 400);
+
+    const event = await db.prepare('SELECT * FROM events WHERE id = ?').bind(id).first();
+    if (!event) return errorResponse('Event not found', 404);
+
+    const leadCount = await db.prepare('SELECT COUNT(*) as cnt FROM leads WHERE event_id = ?').bind(id).first();
+
+    return jsonResponse({ ...event, lead_count: leadCount?.cnt || 0 });
+  } catch (e) {
+    return errorResponse('Error: ' + e.message, 500);
+  }
+}
+
+async function eventsIdPut(context) {
+  const { request, env, params } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const id = parseInt(params.id);
+    if (isNaN(id)) return errorResponse('Invalid event ID', 400);
+
+    const body = await request.json();
+
+    const existing = await db.prepare('SELECT id FROM events WHERE id = ?').bind(id).first();
+    if (!existing) return errorResponse('Event not found', 404);
+
+    const updates = [];
+    const values = [];
+
+    if (body.name !== undefined) { updates.push('name = ?'); values.push(body.name); }
+    if (body.slug !== undefined) { updates.push('slug = ?'); values.push(body.slug); }
+    if (body.description !== undefined) { updates.push('description = ?'); values.push(body.description); }
+    if (body.location !== undefined) { updates.push('location = ?'); values.push(body.location); }
+    if (body.event_date !== undefined) { updates.push('event_date = ?'); values.push(body.event_date); }
+    if (body.active !== undefined) { updates.push('active = ?'); values.push(body.active ? 1 : 0); }
+
+    if (updates.length === 0) return errorResponse('No fields to update', 400);
+
+    updates.push("updated_at = datetime('now')");
+    values.push(id);
+
+    await db.prepare(`UPDATE events SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
+
+    return jsonResponse({ success: true, message: 'Event updated' });
+  } catch (e) {
+    return errorResponse('Error updating event: ' + e.message, 500);
+  }
+}
+
+async function eventsIdDelete(context) {
+  const { request, env, params } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const id = parseInt(params.id);
+    if (isNaN(id)) return errorResponse('Invalid event ID', 400);
+
+    const existing = await db.prepare('SELECT id FROM events WHERE id = ?').bind(id).first();
+    if (!existing) return errorResponse('Event not found', 404);
+
+    // Delete leads for this event first
+    await db.prepare('DELETE FROM leads WHERE event_id = ?').bind(id).run();
+    await db.prepare('DELETE FROM events WHERE id = ?').bind(id).run();
+
+    return jsonResponse({ success: true, message: 'Event and its leads deleted' });
+  } catch (e) {
+    return errorResponse('Error deleting event: ' + e.message, 500);
+  }
+}
+
+// --- /api/events/slug/:slug (GET - public, for captacion form) ---
+
+async function eventsSlugGet(context) {
+  const { env, params } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  try {
+    const slug = params.slug;
+    if (!slug) return errorResponse('Event slug required', 400);
+
+    const event = await db.prepare('SELECT * FROM events WHERE slug = ? AND active = 1').bind(slug).first();
+    if (!event) return errorResponse('Evento no encontrado o no activo', 404);
+
+    return jsonResponse(event);
+  } catch (e) {
+    return errorResponse('Error: ' + e.message, 500);
+  }
+}
+
+// --- /api/leads (GET, POST) ---
+
+async function leadsGet(context) {
+  const { request, env } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const url = new URL(request.url);
+    const eventId = url.searchParams.get('event_id');
+
+    let query = 'SELECT l.*, e.name as event_name FROM leads l LEFT JOIN events e ON l.event_id = e.id';
+    const params = [];
+
+    if (eventId) {
+      query += ' WHERE l.event_id = ?';
+      params.push(parseInt(eventId));
+    }
+
+    query += ' ORDER BY l.created_at DESC';
+
+    const result = await db.prepare(query).bind(...params).all();
+    return jsonResponse(result.results || []);
+  } catch (e) {
+    return errorResponse('Error fetching leads: ' + e.message, 500);
+  }
+}
+
+async function leadsPost(context) {
+  const { request, env } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  try {
+    const body = await request.json();
+    const { event_id, name, phone, email, notes } = body;
+
+    if (!event_id || !name) {
+      return errorResponse('Evento y nombre son obligatorios', 400);
+    }
+
+    // Verify event exists and is active
+    const event = await db.prepare('SELECT id, active FROM events WHERE id = ?').bind(parseInt(event_id)).first();
+    if (!event) return errorResponse('Evento no encontrado', 404);
+    if (!event.active) return errorResponse('Este evento ya no está activo', 400);
+
+    // Check for duplicate (same event + phone or email)
+    if (phone || email) {
+      const dupQuery = phone
+        ? 'SELECT id FROM leads WHERE event_id = ? AND phone = ?'
+        : 'SELECT id FROM leads WHERE event_id = ? AND email = ?';
+      const dupVal = phone || email;
+      const dup = await db.prepare(dupQuery).bind(parseInt(event_id), dupVal).first();
+      if (dup) return errorResponse('Ya estás registrado en este evento', 400);
+    }
+
+    const result = await db.prepare(
+      'INSERT INTO leads (event_id, name, phone, email, notes) VALUES (?, ?, ?, ?, ?)'
+    ).bind(parseInt(event_id), name.trim(), (phone || '').trim(), (email || '').trim().toLowerCase(), (notes || '').trim()).run();
+
+    const newId = result.meta?.last_row_id;
+
+    return jsonResponse({ success: true, id: newId, message: 'Registro exitoso' }, 201);
+  } catch (e) {
+    return errorResponse('Error registrando: ' + e.message, 500);
+  }
+}
+
+// --- /api/leads/:id (DELETE) ---
+
+async function leadsIdDelete(context) {
+  const { request, env, params } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const id = parseInt(params.id);
+    if (isNaN(id)) return errorResponse('Invalid lead ID', 400);
+
+    await db.prepare('DELETE FROM leads WHERE id = ?').bind(id).run();
+
+    return jsonResponse({ success: true, message: 'Lead deleted' });
+  } catch (e) {
+    return errorResponse('Error deleting lead: ' + e.message, 500);
+  }
+}
+
+// --- /api/leads/export (GET - CSV export) ---
+
+async function leadsExportGet(context) {
+  const { request, env } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const url = new URL(request.url);
+    const eventId = url.searchParams.get('event_id');
+
+    if (!eventId) return errorResponse('event_id is required', 400);
+
+    const event = await db.prepare('SELECT name FROM events WHERE id = ?').bind(parseInt(eventId)).first();
+    if (!event) return errorResponse('Event not found', 404);
+
+    const result = await db.prepare(
+      'SELECT l.name, l.phone, l.email, l.notes, l.created_at FROM leads l WHERE l.event_id = ? ORDER BY l.created_at DESC'
+    ).bind(parseInt(eventId)).all();
+
+    const leads = result.results || [];
+
+    // Build CSV
+    const BOM = '\uFEFF';
+    let csv = BOM + 'Nombre,Telefono,Email,Notas,Fecha Registro\n';
+    for (const l of leads) {
+      const escape = (v) => `"${(v || '').replace(/"/g, '""')}"`;
+      csv += `${escape(l.name)},${escape(l.phone)},${escape(l.email)},${escape(l.notes)},${escape(l.created_at)}\n`;
+    }
+
+    const eventName = event.name.replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `leads_${eventName}_${new Date().toISOString().slice(0,10)}.csv`;
+
+    return new Response(csv, {
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
+  } catch (e) {
+    return errorResponse('Error exporting: ' + e.message, 500);
+  }
+}
+
 // ============================================================
 // ROUTING
 // ============================================================
@@ -861,6 +1194,40 @@ async function r2ImagesGet(context) {
  */
 const routes = [
   // Parameterized routes first (more specific)
+  {
+    pattern: /^\/api\/events\/slug\/([^/]+)$/,
+    paramNames: ['slug'],
+    handlers: {
+      GET: eventsSlugGet,
+      OPTIONS: () => handleOptions(),
+    }
+  },
+  {
+    pattern: /^\/api\/leads\/export$/,
+    paramNames: [],
+    handlers: {
+      GET: leadsExportGet,
+      OPTIONS: () => handleOptions(),
+    }
+  },
+  {
+    pattern: /^\/api\/events\/([^/]+)$/,
+    paramNames: ['id'],
+    handlers: {
+      GET: eventsIdGet,
+      PUT: eventsIdPut,
+      DELETE: eventsIdDelete,
+      OPTIONS: () => handleOptions(),
+    }
+  },
+  {
+    pattern: /^\/api\/leads\/([^/]+)$/,
+    paramNames: ['id'],
+    handlers: {
+      DELETE: leadsIdDelete,
+      OPTIONS: () => handleOptions(),
+    }
+  },
   {
     pattern: /^\/api\/products\/([^/]+)$/,
     paramNames: ['id'],
@@ -891,6 +1258,24 @@ const routes = [
     }
   },
   // Exact-match routes
+  {
+    pattern: /^\/api\/events$/,
+    paramNames: [],
+    handlers: {
+      GET: eventsGet,
+      POST: eventsPost,
+      OPTIONS: () => handleOptions(),
+    }
+  },
+  {
+    pattern: /^\/api\/leads$/,
+    paramNames: [],
+    handlers: {
+      GET: leadsGet,
+      POST: leadsPost,
+      OPTIONS: () => handleOptions(),
+    }
+  },
   {
     pattern: /^\/api\/products$/,
     paramNames: [],

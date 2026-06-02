@@ -248,6 +248,7 @@
       <button class="admin-tab active" onclick="AdminTabs.switch('products')"><i class="ri-box-3-line me-1"></i>Productos</button>
       <button class="admin-tab" onclick="AdminTabs.switch('categories')"><i class="ri-layout-grid-line me-1"></i>Categorías</button>
       <button class="admin-tab" onclick="AdminTabs.switch('images')"><i class="ri-image-line me-1"></i>Imágenes</button>
+      <button class="admin-tab" onclick="AdminTabs.switch('events')"><i class="ri-mic-line me-1"></i>Eventos</button>
       <button class="admin-tab" onclick="AdminTabs.switch('settings')"><i class="ri-settings-3-line me-1"></i>Ajustes</button>
     </div>
 
@@ -304,6 +305,20 @@
         </div>
       </div>
     </div>
+
+    <!-- EVENTS TAB -->
+    <div id="tab-events" style="display:none;">
+      <div class="row g-3 mb-4" id="eventsStatsRow"></div>
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h5><i class="ri-mic-line me-2" style="color:var(--color-gold);"></i>Eventos & Captación</h5>
+          <button class="btn-primary-custom" onclick="AdminEvents.openCreate()"><i class="ri-add-line me-1"></i>Nuevo Evento</button>
+        </div>
+        <div class="admin-card-body" id="eventList"></div>
+      </div>
+    </div>
+
+    <!-- LEADS MODAL CONTENT (inside events tab) -->
 
     <!-- SETTINGS TAB -->
     <div id="tab-settings" style="display:none;">
@@ -442,6 +457,107 @@
       <div class="modal-footer">
         <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn-primary-custom" onclick="AdminCategories.save()"><i class="ri-save-line me-1"></i>Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EVENT MODAL -->
+<div class="modal fade modal-custom" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventModalTitle">Nuevo Evento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="eventId">
+        <div class="form-group">
+          <label class="form-label-custom">Nombre del Evento *</label>
+          <input type="text" class="form-input-custom" id="eventNameInput" placeholder="Ej: Congreso Lash Chile 2026">
+        </div>
+        <div class="form-group" id="eventSlugGroup" style="display:none;">
+          <label class="form-label-custom">Slug (URL)</label>
+          <input type="text" class="form-input-custom" id="eventSlug" placeholder="congreso-lash-chile-2026">
+          <small class="text-muted">Se genera automáticamente desde el nombre</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Descripción</label>
+          <textarea class="form-input-custom" id="eventDescription" placeholder="Describe el evento..." style="min-height:80px;"></textarea>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label-custom">Ubicación</label>
+            <input type="text" class="form-input-custom" id="eventLocation" placeholder="Ej: Santiago, Chile">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-custom">Fecha</label>
+            <input type="date" class="form-input-custom" id="eventDate">
+          </div>
+        </div>
+        <div class="form-group mt-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="eventActive" checked>
+            <label class="form-check-label fw-bold" for="eventActive">Evento activo (acepta registros)</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn-primary-custom" onclick="AdminEvents.save()"><i class="ri-save-line me-1"></i>Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal fade modal-custom" id="qrModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="ri-qr-code-line me-2"></i>Código QR</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <h6 id="qrEventName" class="mb-3"></h6>
+        <img id="qrCodeImg" alt="QR Code" style="max-width:280px;margin:0 auto 20px;display:block;border-radius:12px;border:2px solid #eee;">
+        <div class="input-group mb-3">
+          <input type="text" class="form-input-custom" id="qrUrl" readonly style="font-size:0.8rem;">
+          <button class="btn-primary-custom" style="border-radius:0 12px 12px 0;" onclick="AdminEvents.copyQRUrl()"><i class="ri-file-copy-line"></i></button>
+        </div>
+        <p class="text-muted" style="font-size:0.85rem;">Muestra este QR en la proyección durante tu charla. Los asistentes escanean y se registran desde su celular.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADS MODAL -->
+<div class="modal fade modal-custom" id="leadsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="ri-user-follow-line me-2" style="color:var(--color-primary);"></i>Registros - <span id="leadsEventName"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="fw-bold"><span id="leadsCount">0</span> registros</span>
+          <button class="btn-primary-custom" id="leadsExportBtn"><i class="ri-download-line me-1"></i>Exportar CSV</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover" style="font-size:0.9rem;">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Notas</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -672,6 +788,7 @@ const AdminTabs = {
     });
     if (tab === 'categories') AdminCategories.load();
     if (tab === 'images') AdminImages.render();
+    if (tab === 'events') AdminEvents.load();
   }
 };
 
@@ -1154,6 +1271,251 @@ const AdminImages = {
       else { alert('Error: ' + (data.error || '')); }
     } catch(e) { alert('Error: ' + (e.message || 'Error de conexión')); }
     event.target.value = '';
+  }
+};
+
+// ============================================
+// EVENTS & LEADS
+// ============================================
+const AdminEvents = {
+  events: [],
+  selectedEventId: null,
+
+  async load() {
+    try {
+      const resp = await fetch(`${API}/events`, {
+        headers: { 'Authorization': `Bearer ${AdminAuth.token}` }
+      });
+      this.events = (await resp.json()) || [];
+      this.render();
+      this.renderStats();
+    } catch(e) {
+      console.error('Error loading events:', e);
+      document.getElementById('eventList').innerHTML = '<div class="empty-state"><i class="ri-error-warning-line"></i><h5>Error de conexión</h5></div>';
+    }
+  },
+
+  renderStats() {
+    const totalLeads = this.events.reduce((sum, e) => sum + (e.lead_count || 0), 0);
+    const activeEvents = this.events.filter(e => e.active).length;
+    const stats = [
+      { icon:'ri-mic-line', color:'var(--color-gold)', bg:'#fff8e1', number:this.events.length, label:'Total Eventos' },
+      { icon:'ri-user-follow-line', color:'#1565c0', bg:'#e3f2fd', number:totalLeads, label:'Total Registros' },
+      { icon:'ri-check-double-line', color:'#2e7d32', bg:'#e8f5e9', number:activeEvents, label:'Activos' },
+      { icon:'ri-close-circle-line', color:'#c62828', bg:'#ffebee', number:this.events.length - activeEvents, label:'Cerrados' }
+    ];
+    document.getElementById('eventsStatsRow').innerHTML = stats.map(s => `
+      <div class="col-6 col-md-3"><div class="stat-card fade-in"><div class="d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:${s.bg};"><i class="${s.icon}" style="color:${s.color};"></i></div>
+        <div><div class="stat-number">${s.number}</div><div class="stat-label">${s.label}</div></div>
+      </div></div></div>`).join('');
+  },
+
+  render() {
+    const list = document.getElementById('eventList');
+    if (this.events.length === 0) {
+      list.innerHTML = '<div class="empty-state"><i class="ri-mic-line"></i><h5>No hay eventos</h5><p>Crea tu primer evento de captación</p></div>';
+      return;
+    }
+    list.innerHTML = this.events.map(ev => `
+      <div class="product-row fade-in" style="flex-wrap:wrap;gap:10px;">
+        <div style="width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;${ev.active ? 'background:#e8f5e9;color:#2e7d32;' : 'background:#ffebee;color:#c62828;'}">
+          <i class="${ev.active ? 'ri-mic-line' : 'ri-mic-off-line'}"></i>
+        </div>
+        <div class="prod-info" style="min-width:180px;">
+          <div class="prod-name">${ev.name}</div>
+          <div style="font-size:0.8rem;color:#999;margin-top:3px;">
+            ${ev.event_date ? `<i class="ri-calendar-line"></i> ${ev.event_date} &nbsp;` : ''}
+            ${ev.location ? `<i class="ri-map-pin-line"></i> ${ev.location}` : ''}
+          </div>
+        </div>
+        <span class="cat-badge" style="background:${ev.active ? '#e8f5e9;color:#2e7d32;' : '#ffebee;color:#c62828;'}">
+          ${ev.active ? 'Activo' : 'Cerrado'}
+        </span>
+        <span class="cat-badge" style="background:#e3f2fd;color:#1565c0;">
+          <i class="ri-user-line"></i> ${ev.lead_count || 0} registros
+        </span>
+        <div class="prod-actions" style="margin-left:auto;">
+          <button class="btn-action btn-view" onclick="AdminEvents.showQR(${ev.id})" title="QR / Enlace"><i class="ri-qr-code-line"></i></button>
+          <button class="btn-action btn-view" onclick="AdminEvents.viewLeads(${ev.id})" title="Ver Registros"><i class="ri-user-follow-line"></i></button>
+          <button class="btn-action btn-edit" onclick="AdminEvents.openEdit(${ev.id})" title="Editar"><i class="ri-edit-line"></i></button>
+          <button class="btn-action btn-delete" onclick="AdminEvents.openDelete(${ev.id})" title="Eliminar"><i class="ri-delete-bin-line"></i></button>
+        </div>
+      </div>`).join('');
+  },
+
+  openCreate() {
+    document.getElementById('eventModalTitle').textContent = 'Nuevo Evento';
+    document.getElementById('eventId').value = '';
+    document.getElementById('eventNameInput').value = '';
+    document.getElementById('eventSlug').value = '';
+    document.getElementById('eventDescription').value = '';
+    document.getElementById('eventLocation').value = '';
+    document.getElementById('eventDate').value = '';
+    document.getElementById('eventActive').checked = true;
+    document.getElementById('eventSlugGroup').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('eventModal')).show();
+  },
+
+  openEdit(id) {
+    const ev = this.events.find(e => e.id === id);
+    if (!ev) return;
+    document.getElementById('eventModalTitle').textContent = 'Editar Evento';
+    document.getElementById('eventId').value = ev.id;
+    document.getElementById('eventNameInput').value = ev.name;
+    document.getElementById('eventSlug').value = ev.slug;
+    document.getElementById('eventDescription').value = ev.description || '';
+    document.getElementById('eventLocation').value = ev.location || '';
+    document.getElementById('eventDate').value = ev.event_date || '';
+    document.getElementById('eventActive').checked = !!ev.active;
+    document.getElementById('eventSlugGroup').style.display = 'block';
+    new bootstrap.Modal(document.getElementById('eventModal')).show();
+  },
+
+  async save() {
+    const id = document.getElementById('eventId').value;
+    const name = document.getElementById('eventNameInput').value.trim();
+    const slug = document.getElementById('eventSlug').value.trim() || name.toLowerCase().replace(/[^a-z0-9áéíóúñ]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const description = document.getElementById('eventDescription').value.trim();
+    const location = document.getElementById('eventLocation').value.trim();
+    const event_date = document.getElementById('eventDate').value;
+    const active = document.getElementById('eventActive').checked ? 1 : 0;
+
+    if (!name) { alert('El nombre es obligatorio'); return; }
+
+    try {
+      let resp;
+      if (id) {
+        resp = await fetch(`${API}/events/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AdminAuth.token}` },
+          body: JSON.stringify({ name, slug, description, location, event_date, active })
+        });
+      } else {
+        resp = await fetch(`${API}/events`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AdminAuth.token}` },
+          body: JSON.stringify({ name, slug, description, location, event_date, active })
+        });
+      }
+      const data = await resp.json();
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+        this.load();
+      } else { alert('Error: ' + (data.error || '')); }
+    } catch(e) { alert('Error de conexión'); }
+  },
+
+  openDelete(id) {
+    const ev = this.events.find(e => e.id === id);
+    if (!ev) return;
+    if (confirm(`¿Eliminar "${ev.name}" y sus ${ev.lead_count || 0} registros?`)) {
+      this.confirmDelete(id);
+    }
+  },
+
+  async confirmDelete(id) {
+    try {
+      const resp = await fetch(`${API}/events/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${AdminAuth.token}` }
+      });
+      const data = await resp.json();
+      if (data.success) this.load();
+      else alert('Error: ' + (data.error || ''));
+    } catch(e) { alert('Error de conexión'); }
+  },
+
+  showQR(id) {
+    const ev = this.events.find(e => e.id === id);
+    if (!ev) return;
+    const url = `${window.location.origin}/captacion.html?e=${ev.slug}`;
+    const modal = document.getElementById('qrModal');
+    document.getElementById('qrEventName').textContent = ev.name;
+    document.getElementById('qrUrl').value = url;
+    document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(url)}&bgcolor=FFFFFF&color=1A1A2E`;
+    new bootstrap.Modal(modal).show();
+  },
+
+  copyQRUrl() {
+    const input = document.getElementById('qrUrl');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+      alert('Enlace copiado al portapapeles!');
+    }).catch(() => {
+      document.execCommand('copy');
+      alert('Enlace copiado!');
+    });
+  },
+
+  async viewLeads(eventId) {
+    this.selectedEventId = eventId;
+    const ev = this.events.find(e => e.id === eventId);
+    if (!ev) return;
+
+    try {
+      const resp = await fetch(`${API}/leads?event_id=${eventId}`, {
+        headers: { 'Authorization': `Bearer ${AdminAuth.token}` }
+      });
+      const leads = (await resp.json()) || [];
+
+      document.getElementById('leadsEventName').textContent = ev.name;
+      document.getElementById('leadsCount').textContent = leads.length;
+      document.getElementById('leadsExportBtn').onclick = () => this.exportCSV(eventId);
+
+      const tbody = document.getElementById('leadsTableBody');
+      if (leads.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Aún no hay registros</td></tr>';
+      } else {
+        tbody.innerHTML = leads.map(l => `
+          <tr>
+            <td>${l.name}</td>
+            <td>${l.phone || '-'}</td>
+            <td>${l.email || '-'}</td>
+            <td>${l.notes || '-'}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <small class="text-muted">${l.created_at ? new Date(l.created_at + 'Z').toLocaleString('es-CL') : ''}</small>
+                <button class="btn-action btn-delete" style="width:28px;height:28px;font-size:0.8rem;" onclick="AdminEvents.deleteLead(${l.id})" title="Eliminar"><i class="ri-delete-bin-line"></i></button>
+              </div>
+            </td>
+          </tr>`).join('');
+      }
+      new bootstrap.Modal(document.getElementById('leadsModal')).show();
+    } catch(e) {
+      alert('Error cargando registros: ' + e.message);
+    }
+  },
+
+  async deleteLead(leadId) {
+    if (!confirm('¿Eliminar este registro?')) return;
+    try {
+      const resp = await fetch(`${API}/leads/${leadId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${AdminAuth.token}` }
+      });
+      const data = await resp.json();
+      if (data.success) {
+        this.viewLeads(this.selectedEventId);
+        this.load();
+      }
+    } catch(e) { alert('Error eliminando registro'); }
+  },
+
+  async exportCSV(eventId) {
+    try {
+      const resp = await fetch(`${API}/leads/export?event_id=${eventId}`, {
+        headers: { 'Authorization': `Bearer ${AdminAuth.token}` }
+      });
+      if (!resp.ok) { alert('Error exportando'); return; }
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `leads_evento_${eventId}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch(e) { alert('Error exportando: ' + e.message); }
   }
 };
 
