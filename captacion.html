@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Registro | Dubraskalash.art</title>
-  <meta name="description" content="Regístrate en el evento de Dubraskalash.art - Speaker & Judge Internacional">
+  <meta name="description" content="Regístrate en Dubraskalash.art - Speaker & Judge Internacional">
   <meta name="robots" content="noindex, nofollow">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Registro | Dubraskalash.art">
@@ -492,8 +492,16 @@ const API = '/api';
 
 async function init() {
   const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode');
   const slug = params.get('e');
 
+  // Generic registration mode (permanent QR)
+  if (mode === 'registro') {
+    renderGenericForm();
+    return;
+  }
+
+  // Event-specific registration
   if (!slug) {
     showError('Enlace inválido. Falta el identificador del evento.');
     return;
@@ -517,6 +525,20 @@ async function init() {
   }
 }
 
+function renderGenericForm() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('formState').style.display = 'block';
+
+  document.getElementById('eventName').textContent = 'Regístrate';
+  document.getElementById('eventMeta').innerHTML = '<span><i class="ri-sparkling-line"></i> Dubraskalash.art</span>';
+  document.getElementById('eventDescription').textContent = 'Deja tus datos y te contactaremos con información exclusiva sobre nuestros servicios, cursos y eventos.';
+
+  // Mark as generic mode
+  document.getElementById('leadForm').dataset.mode = 'generic';
+  document.getElementById('successEventName').textContent = 'Dubraskalash.art';
+  document.getElementById('dupEventName').textContent = 'Dubraskalash.art';
+}
+
 function renderForm(event) {
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('formState').style.display = 'block';
@@ -535,6 +557,7 @@ function renderForm(event) {
 
   // Store event_id for form submission
   document.getElementById('leadForm').dataset.eventId = event.id;
+  document.getElementById('leadForm').dataset.mode = 'event';
   document.getElementById('successEventName').textContent = event.name;
   document.getElementById('dupEventName').textContent = event.name;
 }
@@ -552,7 +575,7 @@ document.getElementById('leadForm').addEventListener('submit', async function(e)
   e.preventDefault();
 
   const btn = document.getElementById('btnSubmit');
-  const eventId = this.dataset.eventId;
+  const mode = this.dataset.mode || 'event';
   const name = document.getElementById('leadName').value.trim();
   let phone = document.getElementById('leadPhone').value.trim().replace(/\s/g, '');
   const email = document.getElementById('leadEmail').value.trim();
@@ -568,23 +591,42 @@ document.getElementById('leadForm').addEventListener('submit', async function(e)
   btn.innerHTML = '<div class="spinner"></div> Registrando...';
 
   try {
-    const resp = await fetch(`${API}/leads`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_id: parseInt(eventId),
-        name,
-        phone,
-        email,
-        notes: ''
-      })
-    });
+    let resp;
+
+    if (mode === 'generic') {
+      // Generic registration (no event)
+      resp = await fetch(`${API}/registrations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          phone,
+          email,
+          source: 'qr',
+          notes: ''
+        })
+      });
+    } else {
+      // Event-specific registration
+      const eventId = this.dataset.eventId;
+      resp = await fetch(`${API}/leads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_id: parseInt(eventId),
+          name,
+          phone,
+          email,
+          notes: ''
+        })
+      });
+    }
 
     const data = await resp.json();
 
     if (resp.ok) {
       showSuccess();
-    } else if (data.error && data.error.includes('Ya estás registrado')) {
+    } else if (data.error && (data.error.includes('Ya estás registrado') || data.error.includes('Ya estas registrado'))) {
       showDuplicate();
     } else {
       btn.disabled = false;

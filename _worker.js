@@ -134,6 +134,17 @@ async function ensureTables(db) {
       notes TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`).run();
+
+  // Generic registrations (non-event, permanent QR capture)
+  await db.prepare(`CREATE TABLE IF NOT EXISTS registrations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      phone TEXT DEFAULT '',
+      email TEXT DEFAULT '',
+      source TEXT DEFAULT 'qr',
+      notes TEXT DEFAULT '',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`).run();
 }
 
 async function seedData(db) {
@@ -687,15 +698,16 @@ async function uploadPost(context) {
 
 // --- /api/auth (POST, GET) ---
 
-async function authLogin(request, db) {
+async function authLogin(request, db, authType) {
   try {
     const body = await request.json();
     const { password } = body;
 
     if (!password) return errorResponse('Password required', 400);
 
-    const setting = await db.prepare("SELECT value FROM admin_settings WHERE key = 'admin_password'").first();
-    if (!setting) return errorResponse('Admin not configured. Run setup first.', 403);
+    const keyName = authType === 'eventos' ? 'eventos_password' : 'admin_password';
+    const setting = await db.prepare(`SELECT value FROM admin_settings WHERE key = ?`).bind(keyName).first();
+    if (!setting) return errorResponse('Not configured. Run setup first.', 403);
 
     const valid = await verifyPassword(password, setting.value);
     if (!valid) return errorResponse('Invalid password', 401);
@@ -708,13 +720,13 @@ async function authLogin(request, db) {
     // Clean old expired sessions
     await db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
 
-    return jsonResponse({ success: true, token });
+    return jsonResponse({ success: true, token, type: authType || 'admin' });
   } catch (e) {
     return errorResponse('Login error: ' + e.message, 500);
   }
 }
 
-async function authSetup(request, db) {
+async function authSetup(request, db, authType) {
   try {
     const body = await request.json();
     const { password } = body;
@@ -723,33 +735,53 @@ async function authSetup(request, db) {
       return errorResponse('Password must be at least 4 characters', 400);
     }
 
-    const existing = await db.prepare("SELECT value FROM admin_settings WHERE key = 'admin_password'").first();
+    const keyName = authType === 'eventos' ? 'eventos_password' : 'admin_password';
+    const existing = await db.prepare(`SELECT value FROM admin_settings WHERE key = ?`).bind(keyName).first();
     if (existing) {
-      return errorResponse('Admin already configured. Use login instead.', 400);
+      return errorResponse('Already configured. Use login instead.', 400);
     }
 
+    // Always ensure tables exist on any setup
     await ensureTables(db);
-    await seedData(db);
+
+    // Only seed data on main admin setup
+    if (authType !== 'eventos') {
+      await seedData(db);
+    }
 
     const hash = await hashPassword(password);
-    await db.prepare("INSERT INTO admin_settings (key, value) VALUES ('admin_password', ?)").bind(hash).run();
+    await db.prepare(`INSERT INTO admin_settings (key, value) VALUES (?, ?)`).bind(keyName, hash).run();
 
     // Auto-login after setup
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     await db.prepare('INSERT INTO sessions (token, expires_at) VALUES (?, ?)').bind(token, expiresAt).run();
 
-    return jsonResponse({ success: true, token, message: 'Setup complete! Database initialized with products.' });
+    const msg = authType === 'eventos'
+      ? 'Setup complete! Panel de Eventos configurado.'
+      : 'Setup complete! Database initialized with products.';
+    return jsonResponse({ success: true, token, type: authType || 'admin', message: msg });
   } catch (e) {
     return errorResponse('Setup error: ' + e.message, 500);
   }
 }
 
-async function authStatus(db) {
+async function authStatus(db, authType) {
   try {
-    const setting = await db.prepare("SELECT value FROM admin_settings WHERE key = 'admin_password'").first();
-    const hasProducts = await db.prepare('SELECT COUNT(*) as cnt FROM products').first();
+    const keyName = authType === 'eventos' ? 'eventos_password' : 'admin_password';
+    const setting = await db.prepare(`SELECT value FROM admin_settings WHERE key = ?`).bind(keyName).first();
 
+    if (authType === 'eventos') {
+      const hasEvents = await db.prepare('SELECT COUNT(*) as cnt FROM events').first();
+      const hasRegistrations = await db.prepare('SELECT COUNT(*) as cnt FROM registrations').first();
+      return jsonResponse({
+        configured: !!setting,
+        hasEvents: hasEvents ? hasEvents.cnt > 0 : false,
+        hasRegistrations: hasRegistrations ? hasRegistrations.cnt > 0 : false
+      });
+    }
+
+    const hasProducts = await db.prepare('SELECT COUNT(*) as cnt FROM products').first();
     return jsonResponse({
       configured: !!setting,
       hasProducts: hasProducts ? hasProducts.cnt > 0 : false,
@@ -760,7 +792,7 @@ async function authStatus(db) {
   }
 }
 
-async function authChangePassword(request, db) {
+async function authChangePassword(request, db, authType) {
   const auth = await validateAuth(request, db);
   if (!auth.valid) return errorResponse(auth.error, 401);
 
@@ -771,12 +803,13 @@ async function authChangePassword(request, db) {
     if (!currentPassword || !newPassword) return errorResponse('Both passwords required', 400);
     if (newPassword.length < 4) return errorResponse('New password must be at least 4 characters', 400);
 
-    const setting = await db.prepare("SELECT value FROM admin_settings WHERE key = 'admin_password'").first();
+    const keyName = authType === 'eventos' ? 'eventos_password' : 'admin_password';
+    const setting = await db.prepare(`SELECT value FROM admin_settings WHERE key = ?`).bind(keyName).first();
     const valid = await verifyPassword(currentPassword, setting.value);
     if (!valid) return errorResponse('Current password is incorrect', 401);
 
     const hash = await hashPassword(newPassword);
-    await db.prepare("UPDATE admin_settings SET value = ? WHERE key = 'admin_password'").bind(hash).run();
+    await db.prepare(`UPDATE admin_settings SET value = ? WHERE key = ?`).bind(hash, keyName).run();
 
     return jsonResponse({ success: true, message: 'Password changed successfully' });
   } catch (e) {
@@ -801,19 +834,20 @@ async function authHandler(context) {
   try {
     const url = new URL(request.url);
     const action = url.searchParams.get('action');
+    const authType = url.searchParams.get('type') || 'admin';
 
     switch (action) {
       case 'login':
         if (request.method !== 'POST') return errorResponse('Method not allowed', 405);
-        return await authLogin(request, db);
+        return await authLogin(request, db, authType);
       case 'setup':
         if (request.method !== 'POST') return errorResponse('Method not allowed', 405);
-        return await authSetup(request, db);
+        return await authSetup(request, db, authType);
       case 'status':
-        return await authStatus(db);
+        return await authStatus(db, authType);
       case 'change-password':
         if (request.method !== 'POST') return errorResponse('Method not allowed', 405);
-        return await authChangePassword(request, db);
+        return await authChangePassword(request, db, authType);
       case 'logout':
         if (request.method !== 'POST') return errorResponse('Method not allowed', 405);
         return await authLogout(request, db);
@@ -1182,6 +1216,133 @@ async function leadsExportGet(context) {
   }
 }
 
+// --- /api/registrations (GET, POST) ---
+
+async function registrationsGet(context) {
+  const { request, env } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const url = new URL(request.url);
+    const search = url.searchParams.get('search');
+
+    let query = 'SELECT * FROM registrations';
+    const params = [];
+
+    if (search) {
+      query += ' WHERE name LIKE ? OR phone LIKE ? OR email LIKE ?';
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+
+    query += ' ORDER BY created_at DESC';
+
+    const result = await db.prepare(query).bind(...params).all();
+    return jsonResponse(result.results || []);
+  } catch (e) {
+    return errorResponse('Error fetching registrations: ' + e.message, 500);
+  }
+}
+
+async function registrationsPost(context) {
+  const { request, env } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  try {
+    const body = await request.json();
+    const { name, phone, email, source, notes } = body;
+
+    if (!name) {
+      return errorResponse('El nombre es obligatorio', 400);
+    }
+
+    // Check for duplicate (same phone or email)
+    if (phone || email) {
+      const dupQuery = phone
+        ? 'SELECT id FROM registrations WHERE phone = ?'
+        : 'SELECT id FROM registrations WHERE email = ?';
+      const dupVal = phone || email;
+      const dup = await db.prepare(dupQuery).bind(dupVal).first();
+      if (dup) return errorResponse('Ya estás registrado/a', 400);
+    }
+
+    const result = await db.prepare(
+      'INSERT INTO registrations (name, phone, email, source, notes) VALUES (?, ?, ?, ?, ?)'
+    ).bind(name.trim(), (phone || '').trim(), (email || '').trim().toLowerCase(), (source || 'qr').trim(), (notes || '').trim()).run();
+
+    const newId = result.meta?.last_row_id;
+
+    return jsonResponse({ success: true, id: newId, message: 'Registro exitoso' }, 201);
+  } catch (e) {
+    return errorResponse('Error registrando: ' + e.message, 500);
+  }
+}
+
+// --- /api/registrations/:id (DELETE) ---
+
+async function registrationsIdDelete(context) {
+  const { request, env, params } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const id = parseInt(params.id);
+    if (isNaN(id)) return errorResponse('Invalid registration ID', 400);
+
+    await db.prepare('DELETE FROM registrations WHERE id = ?').bind(id).run();
+
+    return jsonResponse({ success: true, message: 'Registration deleted' });
+  } catch (e) {
+    return errorResponse('Error deleting registration: ' + e.message, 500);
+  }
+}
+
+// --- /api/registrations/export (GET - CSV export) ---
+
+async function registrationsExportGet(context) {
+  const { request, env } = context;
+  const db = env.DB;
+  if (!db) return errorResponse('Database not configured', 500);
+
+  const auth = await validateAuth(request, db);
+  if (!auth.valid) return errorResponse(auth.error, 401);
+
+  try {
+    const result = await db.prepare(
+      'SELECT name, phone, email, source, notes, created_at FROM registrations ORDER BY created_at DESC'
+    ).all();
+
+    const regs = result.results || [];
+
+    // Build CSV
+    const BOM = '\uFEFF';
+    let csv = BOM + 'Nombre,Telefono,Email,Origen,Notas,Fecha Registro\n';
+    for (const r of regs) {
+      const escape = (v) => `"${(v || '').replace(/"/g, '""')}"`;
+      csv += `${escape(r.name)},${escape(r.phone)},${escape(r.email)},${escape(r.source)},${escape(r.notes)},${escape(r.created_at)}\n`;
+    }
+
+    const filename = `registros_genericos_${new Date().toISOString().slice(0,10)}.csv`;
+
+    return new Response(csv, {
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
+  } catch (e) {
+    return errorResponse('Error exporting: ' + e.message, 500);
+  }
+}
+
 // ============================================================
 // ROUTING
 // ============================================================
@@ -1203,6 +1364,14 @@ const routes = [
     }
   },
   {
+    pattern: /^\/api\/registrations\/export$/,
+    paramNames: [],
+    handlers: {
+      GET: registrationsExportGet,
+      OPTIONS: () => handleOptions(),
+    }
+  },
+  {
     pattern: /^\/api\/leads\/export$/,
     paramNames: [],
     handlers: {
@@ -1217,6 +1386,14 @@ const routes = [
       GET: eventsIdGet,
       PUT: eventsIdPut,
       DELETE: eventsIdDelete,
+      OPTIONS: () => handleOptions(),
+    }
+  },
+  {
+    pattern: /^\/api\/registrations\/([^/]+)$/,
+    paramNames: ['id'],
+    handlers: {
+      DELETE: registrationsIdDelete,
       OPTIONS: () => handleOptions(),
     }
   },
@@ -1258,6 +1435,15 @@ const routes = [
     }
   },
   // Exact-match routes
+  {
+    pattern: /^\/api\/registrations$/,
+    paramNames: [],
+    handlers: {
+      GET: registrationsGet,
+      POST: registrationsPost,
+      OPTIONS: () => handleOptions(),
+    }
+  },
   {
     pattern: /^\/api\/events$/,
     paramNames: [],
