@@ -604,7 +604,10 @@
       <div class="admin-card">
         <div class="admin-card-header">
           <h5><i class="ri-mic-line me-2" style="color:var(--color-gold);"></i>Eventos & Captacion</h5>
-          <button class="btn-primary-custom btn-sm" onclick="EventosEvents.openCreate()"><i class="ri-add-line me-1"></i>Nuevo Evento</button>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn-primary-custom btn-sm" onclick="EventosManual.open('event')"><i class="ri-user-add-line me-1"></i>Agregar Registro</button>
+            <button class="btn-primary-custom btn-sm" onclick="EventosEvents.openCreate()"><i class="ri-add-line me-1"></i>Nuevo Evento</button>
+          </div>
         </div>
         <div class="admin-card-body" id="eventList"></div>
       </div>
@@ -621,7 +624,8 @@
               <i class="ri-search-line"></i>
               <input type="text" placeholder="Buscar..." oninput="EventosRegs.filter(this.value)">
             </div>
-            <button class="btn-primary-custom btn-sm" onclick="EventosRegs.exportCSV()"><i class="ri-download-line me-1"></i>Exportar CSV</button>
+            <button class="btn-primary-custom btn-sm" onclick="EventosManual.open('generic')"><i class="ri-user-add-line me-1"></i>Agregar</button>
+            <button class="btn-outline-custom btn-sm" onclick="EventosRegs.exportCSV()"><i class="ri-download-line me-1"></i>CSV</button>
           </div>
         </div>
         <div class="admin-card-body" id="regList"></div>
@@ -783,6 +787,54 @@
             <tbody id="leadsTableBody"></tbody>
           </table>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MANUAL REGISTRATION MODAL -->
+<div class="modal fade modal-custom" id="manualRegModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="manualRegTitle"><i class="ri-user-add-line me-2" style="color:var(--color-primary);"></i>Agregar Registro Manual</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="manualRegMode" value="generic">
+        <div class="form-group" id="manualEventSelectGroup">
+          <label class="form-label-custom">Evento *</label>
+          <select class="form-input-custom" id="manualEventSelect" style="cursor:pointer;">
+            <option value="">Seleccionar evento...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Nombre completo *</label>
+          <input type="text" class="form-input-custom" id="manualRegName" placeholder="Ej: Maria Gonzalez">
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label-custom">Telefono</label>
+              <input type="tel" class="form-input-custom" id="manualRegPhone" placeholder="+56 9 1234 5678">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label-custom">Email</label>
+              <input type="email" class="form-input-custom" id="manualRegEmail" placeholder="correo@ejemplo.com">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Notas</label>
+          <textarea class="form-input-custom" id="manualRegNotes" placeholder="Notas opcionales..." style="min-height:60px;"></textarea>
+        </div>
+        <div id="manualRegError" style="display:none;color:#c62828;font-size:0.85rem;font-weight:600;margin-top:8px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn-primary-custom" onclick="EventosManual.save()"><i class="ri-user-add-line me-1"></i>Registrar</button>
       </div>
     </div>
   </div>
@@ -1320,6 +1372,117 @@ const EventosSettings = {
         document.getElementById('evtNewPassword').value = '';
       } else { alert('Error: ' + (data.error || '')); }
     } catch(e) { alert('Error de conexion'); }
+  }
+};
+
+// ============================================
+// MANUAL REGISTRATION
+// ============================================
+const EventosManual = {
+  mode: 'generic', // 'generic' or 'event'
+  preselectedEventId: null,
+
+  open(mode, eventId) {
+    this.mode = mode || 'generic';
+    this.preselectedEventId = eventId || null;
+
+    // Reset form
+    document.getElementById('manualRegName').value = '';
+    document.getElementById('manualRegPhone').value = '';
+    document.getElementById('manualRegEmail').value = '';
+    document.getElementById('manualRegNotes').value = '';
+    document.getElementById('manualRegError').style.display = 'none';
+
+    const eventGroup = document.getElementById('manualEventSelectGroup');
+    const title = document.getElementById('manualRegTitle');
+
+    if (this.mode === 'event') {
+      // Show event selector
+      eventGroup.style.display = 'block';
+      title.innerHTML = '<i class="ri-user-add-line me-2" style="color:var(--color-primary);"></i>Agregar Registro a Evento';
+
+      // Populate event dropdown
+      const select = document.getElementById('manualEventSelect');
+      select.innerHTML = '<option value="">Seleccionar evento...</option>';
+      EventosEvents.events.forEach(ev => {
+        const opt = document.createElement('option');
+        opt.value = ev.id;
+        opt.textContent = ev.name + (ev.active ? '' : ' (Cerrado)');
+        if (this.preselectedEventId && ev.id === this.preselectedEventId) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      // If only one active event, auto-select it
+      const activeEvents = EventosEvents.events.filter(e => e.active);
+      if (activeEvents.length === 1) {
+        select.value = activeEvents[0].id;
+      }
+    } else {
+      // Generic mode - hide event selector
+      eventGroup.style.display = 'none';
+      title.innerHTML = '<i class="ri-user-add-line me-2" style="color:var(--color-primary);"></i>Agregar Registro Generico';
+    }
+
+    document.getElementById('manualRegMode').value = this.mode;
+    new bootstrap.Modal(document.getElementById('manualRegModal')).show();
+  },
+
+  async save() {
+    const mode = document.getElementById('manualRegMode').value;
+    const name = document.getElementById('manualRegName').value.trim();
+    const phone = document.getElementById('manualRegPhone').value.trim();
+    const email = document.getElementById('manualRegEmail').value.trim();
+    const notes = document.getElementById('manualRegNotes').value.trim();
+    const errEl = document.getElementById('manualRegError');
+
+    if (!name) {
+      errEl.textContent = 'El nombre es obligatorio';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    try {
+      let resp;
+
+      if (mode === 'event') {
+        const eventId = document.getElementById('manualEventSelect').value;
+        if (!eventId) {
+          errEl.textContent = 'Selecciona un evento';
+          errEl.style.display = 'block';
+          return;
+        }
+        resp = await fetch(`${API}/leads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event_id: parseInt(eventId), name, phone, email, notes })
+        });
+      } else {
+        resp = await fetch(`${API}/registrations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, email, source: 'manual', notes })
+        });
+      }
+
+      const data = await resp.json();
+
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('manualRegModal')).hide();
+        // Refresh the relevant lists
+        if (mode === 'event') {
+          EventosEvents.load();
+        } else {
+          EventosRegs.load();
+        }
+        AutoRefresh.reset();
+      } else {
+        errEl.textContent = data.error || 'Error al registrar';
+        errEl.style.display = 'block';
+      }
+    } catch(e) {
+      errEl.textContent = 'Error de conexion';
+      errEl.style.display = 'block';
+    }
   }
 };
 
