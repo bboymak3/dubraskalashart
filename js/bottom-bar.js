@@ -1,13 +1,17 @@
 /**
  * Bottom Action Bar - Scroll reveal animation
- * Hides button labels by default, reveals them on scroll up or touch
+ * Only activates on pages that include this script.
+ * Index page does NOT include this, so labels stay always visible there.
  */
 (function() {
+  const bottomBar = document.querySelector('.bottom-action-bar');
+  if (!bottomBar) return;
+
+  // Activate animation mode
+  bottomBar.classList.add('bar-animated');
+
   let lastScrollY = window.scrollY;
   let scrollTimeout = null;
-  const bottomBar = document.querySelector('.bottom-action-bar');
-
-  if (!bottomBar) return;
 
   function expandBar() {
     bottomBar.classList.add('bar-expanded');
