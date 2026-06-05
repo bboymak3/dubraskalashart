@@ -74,6 +74,7 @@
 <section class="py-4 bg-light sticky-top" style="top:68px;z-index:1020;">
   <div class="container">
     <div class="d-flex gap-2 overflow-auto pb-2" style="white-space:nowrap;">
+      <a href="#faq-como-comprar" class="btn btn-sm rounded-pill" style="background:var(--color-gold);color:#fff;">Cómo Comprar</a>
       <a href="#faq-pestañas" class="btn btn-sm rounded-pill" style="background:var(--color-primary);color:#fff;">Pestañas</a>
       <a href="#faq-micropigmentacion" class="btn btn-sm rounded-pill" style="background:#fff3e0;color:#e65100;">Micropigmentación</a>
       <a href="#faq-insumos" class="btn btn-sm rounded-pill" style="background:#e8f5e9;color:#2e7d32;">Insumos</a>
@@ -88,6 +89,97 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-9">
+
+        <!-- CÓMO COMPRAR EN 3 PASOS -->
+        <div id="faq-como-comprar" class="mb-5 pt-3">
+          <div class="d-flex align-items-center mb-4">
+            <div class="me-3" style="width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg, var(--color-gold), #b8912e);display:flex;align-items:center;justify-content:center;">
+              <i class="ri-shopping-bag-line" style="color:#fff;"></i>
+            </div>
+            <h3 style="font-size:1.6rem;margin:0;">Cómo Comprar</h3>
+          </div>
+
+          <!-- 3 Steps Visual -->
+          <div class="row g-4 mb-4">
+            <div class="col-md-4">
+              <div class="text-center p-4" style="background:#fffbf2;border-radius:18px;border:1px solid #f5e6c8;height:100%;">
+                <div style="width:60px;height:60px;border-radius:50%;background:var(--color-gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;margin:0 auto 15px;">1</div>
+                <h5 style="font-weight:700;color:var(--color-dark);">Agrega al Carrito</h5>
+                <p class="text-muted mb-0" style="font-size:0.9rem;">Explora nuestra tienda y agrega los productos o servicios que desees al carrito de compras. Puedes ver el resumen de tu pedido en cualquier momento desde el ícono del carrito.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="text-center p-4" style="background:#fffbf2;border-radius:18px;border:1px solid #f5e6c8;height:100%;">
+                <div style="width:60px;height:60px;border-radius:50%;background:var(--color-gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;margin:0 auto 15px;">2</div>
+                <h5 style="font-weight:700;color:var(--color-dark);">Revisa las Cuentas y Paga</h5>
+                <p class="text-muted mb-0" style="font-size:0.9rem;">Ve a la sección de Medios de Pago, elige una de nuestras cuentas bancarias (Banco Falabella, Itaú o Scotiabank) y realiza la transferencia o depósito por el monto total.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="text-center p-4" style="background:#fffbf2;border-radius:18px;border:1px solid #f5e6c8;height:100%;">
+                <div style="width:60px;height:60px;border-radius:50%;background:var(--color-gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;margin:0 auto 15px;">3</div>
+                <h5 style="font-weight:700;color:var(--color-dark);">Envía el Comprobante</h5>
+                <p class="text-muted mb-0" style="font-size:0.9rem;">Envía una captura o foto del comprobante de pago por WhatsApp. Una vez verificado el pago, procesaremos tu pedido y te confirmaremos la recepción al instante.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion" id="faqComoComprar">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#cc1">
+                  ¿Cómo hago mi pedido por el carrito de compras?
+                </button>
+              </h2>
+              <div id="cc1" class="accordion-collapse collapse show" data-bs-parent="#faqComoComprar">
+                <div class="accordion-body">
+                  Es muy sencillo. Ingresa a nuestra <a href="tienda.html" style="color:var(--color-primary);font-weight:600;">tienda online</a>, selecciona los productos o servicios que te interesen y haz clic en "Agregar al Carrito". Puedes seguir navegando y agregando más productos. Cuando estés lista, haz clic en el ícono del carrito en la esquina superior para ver el resumen de tu pedido con los precios y cantidades. Desde ahí puedes modificar cantidades o eliminar productos antes de proceder al pago.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cc2">
+                  ¿Dónde veo las cuentas bancarias para pagar?
+                </button>
+              </h2>
+              <div id="cc2" class="accordion-collapse collapse" data-bs-parent="#faqComoComprar">
+                <div class="accordion-body">
+                  Las cuentas bancarias las encuentras en nuestra página de <a href="pago.html" style="color:var(--color-primary);font-weight:600;">Medios de Pago</a>. Tenemos 3 cuentas disponibles: Banco Falabella, Banco Itaú y Scotiabank. Cada una tiene un botón de "Copiar Datos" para que puedas transferir fácilmente desde tu app bancaria. Puedes elegir cualquiera de las tres cuentas, la que te sea más conveniente. También puedes acceder desde el botón "Ir a Medios de Pago" que aparece en tu carrito.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cc3">
+                  ¿Cómo envío el comprobante de pago?
+                </button>
+              </h2>
+              <div id="cc3" class="accordion-collapse collapse" data-bs-parent="#faqComoComprar">
+                <div class="accordion-body">
+                  Una vez que realices la transferencia o depósito, ve a la sección de <a href="pago.html#resumen-pago" style="color:var(--color-primary);font-weight:600;">Confirmar Pago</a> y haz clic en el botón verde "Enviar Comprobante por WhatsApp". Se abrirá WhatsApp con un mensaje prellenado que incluye el detalle de tu pedido. Solo debes adjuntar la captura o foto de tu comprobante de pago en el chat y enviarlo. También puedes escribirnos directamente al <strong>+56 9 4651 0308</strong> con tu comprobante.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cc4">
+                  ¿Cuánto tiempo tarda en confirmarse mi pago?
+                </button>
+              </h2>
+              <div id="cc4" class="accordion-collapse collapse" data-bs-parent="#faqComoComprar">
+                <div class="accordion-body">
+                  Las transferencias entre el mismo banco se confirman de inmediato. Las transferencias entre bancos distintos pueden demorar hasta 24 horas hábiles. En cuanto recibamos y verifiquemos tu comprobante por WhatsApp, te confirmaremos la recepción del pago y el estado de tu pedido. Para envíos de insumos, el despacho se realiza una vez confirmado el pago.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center mt-4">
+            <a href="pago.html" class="btn btn-gold me-2"><i class="ri-bank-card-line me-2"></i>Ver Cuentas para Pagar</a>
+            <a href="tienda.html" class="btn btn-outline-fuchsia"><i class="ri-store-2-line me-2"></i>Ir a la Tienda</a>
+          </div>
+        </div>
 
         <!-- PESTAÑAS -->
         <div id="faq-pestañas" class="mb-5 pt-3">
