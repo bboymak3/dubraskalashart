@@ -253,12 +253,8 @@ const Cart = {
     const items = this.getItems();
     if (items.length === 0) return;
 
-    let msg = 'Hola Dubraskalash! Quiero realizar el siguiente pedido:%0A%0A';
-    items.forEach(item => {
-      msg += `• ${item.name} x${item.qty} - ${this.formatPrice(item.price * item.qty)}%0A`;
-    });
-    msg += `%0ATotal: ${this.formatPrice(this.getTotal())}%0A%0AGracias!`;
-    window.open(`https://wa.me/56946510308?text=${msg}`, '_blank');
+    // Redirect to payment page with cart details
+    window.location.href = 'pago.html';
   },
 
   toggleSidebar() {

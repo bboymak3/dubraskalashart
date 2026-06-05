@@ -57,6 +57,7 @@
         <li class="nav-item"><a class="nav-link active" href="tienda.html">Tienda</a></li>
         <li class="nav-item"><a class="nav-link" href="quienes-somos.html">Quiénes Somos</a></li>
         <li class="nav-item"><a class="nav-link" href="contactos.html">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="pago.html">Medios de Pago</a></li>
         <li class="nav-item"><a class="nav-link" href="preguntas-frecuentes.html">FAQ</a></li>
         <li class="nav-item">
           <a href="https://wa.me/56946510308" class="btn btn-gold btn-sm rounded-pill px-4">
@@ -182,6 +183,7 @@
         <p><a href="tienda.html">Tienda</a></p>
         <p><a href="quienes-somos.html">Quiénes Somos</a></p>
         <p><a href="contactos.html">Contacto</a></p>
+        <p><a href="pago.html">Medios de Pago</a></p>
       </div>
       <div class="col-lg-3 col-md-4 mb-3">
         <h5>Productos</h5>
@@ -210,8 +212,8 @@
     <a href="index.html"><i class="ri-home-5-line"></i><span>Inicio</span></a>
     <a href="tienda.html"><i class="ri-store-2-line"></i><span>Tienda</span></a>
     <a href="#" onclick="Cart.toggleSidebar(); return false;" class="btn-cart-bar"><i class="ri-shopping-cart-2-line"></i><span>Carrito</span><span class="cart-badge-bar">0</span></a>
-    <a href="https://wa.me/56946510308" class="btn-wa"><i class="ri-whatsapp-line"></i><span>WhatsApp</span></a>
-    <a href="tel:+56946510308" class="btn-call"><i class="ri-phone-line"></i><span>Llamar</span></a>
+    <a href="pago.html" class="btn-wa" style="background:var(--color-gold);"><i class="ri-bank-card-line"></i><span>Pagar</span></a>
+    <a href="https://wa.me/56946510308" class="btn-call" style="background:#25D366;"><i class="ri-whatsapp-line"></i><span>WhatsApp</span></a>
   </div>
 </div>
 
@@ -235,9 +237,9 @@
       <strong>Total:</strong>
       <strong id="cart-sidebar-total" style="color:var(--color-primary);">$0</strong>
     </div>
-    <button id="cart-checkout-btn" class="btn btn-whatsapp w-100" onclick="Cart.checkout()" style="display:none;">
-      <i class="ri-whatsapp-line me-2"></i>Pedir por WhatsApp
-    </button>
+    <a href="pago.html" id="cart-checkout-btn" class="btn btn-gold w-100" style="display:none;text-decoration:none;">
+      <i class="ri-bank-card-line me-2"></i>Ir a Medios de Pago
+    </a>
   </div>
 </div>
 
