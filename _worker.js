@@ -1357,7 +1357,7 @@ async function registrationsExportGet(context) {
 const routes = [
   // Parameterized routes first (more specific)
   {
-    pattern: /^\/api\/dk_events\/slug\/([^/]+)$/,
+    pattern: /^\/api\/events\/slug\/([^/]+)$/,
     paramNames: ['slug'],
     handlers: {
       GET: eventsSlugGet,
@@ -1365,7 +1365,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_registrations\/export$/,
+    pattern: /^\/api\/registrations\/export$/,
     paramNames: [],
     handlers: {
       GET: registrationsExportGet,
@@ -1373,7 +1373,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_leads\/export$/,
+    pattern: /^\/api\/leads\/export$/,
     paramNames: [],
     handlers: {
       GET: leadsExportGet,
@@ -1381,7 +1381,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_events\/([^/]+)$/,
+    pattern: /^\/api\/events\/([^/]+)$/,
     paramNames: ['id'],
     handlers: {
       GET: eventsIdGet,
@@ -1391,7 +1391,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_registrations\/([^/]+)$/,
+    pattern: /^\/api\/registrations\/([^/]+)$/,
     paramNames: ['id'],
     handlers: {
       DELETE: registrationsIdDelete,
@@ -1399,7 +1399,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_leads\/([^/]+)$/,
+    pattern: /^\/api\/leads\/([^/]+)$/,
     paramNames: ['id'],
     handlers: {
       DELETE: leadsIdDelete,
@@ -1407,7 +1407,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_products\/([^/]+)$/,
+    pattern: /^\/api\/products\/([^/]+)$/,
     paramNames: ['id'],
     handlers: {
       GET: productsIdGet,
@@ -1417,7 +1417,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_categories\/([^/]+)$/,
+    pattern: /^\/api\/categories\/([^/]+)$/,
     paramNames: ['slug'],
     handlers: {
       GET: categoriesSlugGet,
@@ -1437,7 +1437,7 @@ const routes = [
   },
   // Exact-match routes
   {
-    pattern: /^\/api\/dk_registrations$/,
+    pattern: /^\/api\/registrations$/,
     paramNames: [],
     handlers: {
       GET: registrationsGet,
@@ -1446,7 +1446,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_events$/,
+    pattern: /^\/api\/events$/,
     paramNames: [],
     handlers: {
       GET: eventsGet,
@@ -1455,7 +1455,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_leads$/,
+    pattern: /^\/api\/leads$/,
     paramNames: [],
     handlers: {
       GET: leadsGet,
@@ -1464,7 +1464,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_products$/,
+    pattern: /^\/api\/products$/,
     paramNames: [],
     handlers: {
       GET: productsGet,
@@ -1473,7 +1473,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/dk_categories$/,
+    pattern: /^\/api\/categories$/,
     paramNames: [],
     handlers: {
       GET: categoriesGet,
