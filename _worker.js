@@ -47,7 +47,7 @@ async function validateAuth(request, db) {
   }
   try {
     const session = await db.prepare(
-      "SELECT * FROM sessions WHERE token = ? AND expires_at > datetime('now')"
+      "SELECT * FROM dk_sessions WHERE token = ? AND expires_at > datetime('now')"
     ).bind(token).first();
     if (!session) {
       return { valid: false, error: 'Session expired. Please login again.' };
@@ -82,38 +82,39 @@ function generateToken() {
 }
 
 async function ensureTables(db) {
-  await db.prepare(`CREATE TABLE IF NOT EXISTS products (
+  await db.prepare(`CREATE TABLE IF NOT EXISTS dk_products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       price INTEGER NOT NULL,
       category TEXT NOT NULL DEFAULT 'adhesivos',
       image TEXT DEFAULT '',
       description TEXT DEFAULT '',
+      images TEXT DEFAULT '[]',
       sort_order INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`).run();
 
-  await db.prepare(`CREATE TABLE IF NOT EXISTS categories (
+  await db.prepare(`CREATE TABLE IF NOT EXISTS dk_categories (
       slug TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       group_name TEXT DEFAULT 'Productos',
       sort_order INTEGER DEFAULT 0
     )`).run();
 
-  await db.prepare(`CREATE TABLE IF NOT EXISTS admin_settings (
+  await db.prepare(`CREATE TABLE IF NOT EXISTS dk_admin_settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     )`).run();
 
-  await db.prepare(`CREATE TABLE IF NOT EXISTS sessions (
+  await db.prepare(`CREATE TABLE IF NOT EXISTS dk_sessions (
       token TEXT PRIMARY KEY,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       expires_at DATETIME NOT NULL
     )`).run();
 
   // Lead capture tables
-  await db.prepare(`CREATE TABLE IF NOT EXISTS events (
+  await db.prepare(`CREATE TABLE IF NOT EXISTS dk_events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       slug TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
@@ -125,7 +126,7 @@ async function ensureTables(db) {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`).run();
 
-  await db.prepare(`CREATE TABLE IF NOT EXISTS leads (
+  await db.prepare(`CREATE TABLE IF NOT EXISTS dk_leads (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       event_id INTEGER NOT NULL,
       name TEXT NOT NULL,
@@ -135,8 +136,8 @@ async function ensureTables(db) {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`).run();
 
-  // Generic registrations (non-event, permanent QR capture)
-  await db.prepare(`CREATE TABLE IF NOT EXISTS registrations (
+  // Generic dk_registrations (non-event, permanent QR capture)
+  await db.prepare(`CREATE TABLE IF NOT EXISTS dk_registrations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       phone TEXT DEFAULT '',
@@ -148,10 +149,10 @@ async function ensureTables(db) {
 }
 
 async function seedData(db) {
-  const existing = await db.prepare('SELECT COUNT(*) as cnt FROM products').first();
+  const existing = await db.prepare('SELECT COUNT(*) as cnt FROM dk_products').first();
   if (existing && existing.cnt > 0) return false;
 
-  const categories = [
+  const dk_categories = [
     ['adhesivos', 'Adhesivos', 'Productos', 1],
     ['liquidos', 'Líquidos & Prep', 'Productos', 2],
     ['herramientas', 'Herramientas', 'Productos', 3],
@@ -168,12 +169,12 @@ async function seedData(db) {
     ['cursos', 'Cursos', 'Formacion', 14]
   ];
 
-  for (const [slug, name, group, sort] of categories) {
-    await db.prepare('INSERT OR IGNORE INTO categories (slug, name, group_name, sort_order) VALUES (?, ?, ?, ?)')
+  for (const [slug, name, group, sort] of dk_categories) {
+    await db.prepare('INSERT OR IGNORE INTO dk_categories (slug, name, group_name, sort_order) VALUES (?, ?, ?, ?)')
       .bind(slug, name, group, sort).run();
   }
 
-  const products = [
+  const dk_products = [
     ['Adhesivo Transparente', 29990, 'adhesivos', '/api/images/dubraska%2Fultra-clear-glue-Lash-Design.webp', 'Adhesivo transparente profesional. Temperatura 22-27°C, Humedad 50-60%, Retención 30-45 días, Conservación 5-8°C, Secado 0.5 segundos.'],
     ['Adhesivo Negro (Alta Humedad)', 29990, 'adhesivos', '/api/images/dubraska%2Fpegamento-pestañas-ultra-clear-glue-profesional-secado-rapido.webp', 'Adhesivo negro para ambientes de alta humedad. Temp 22-27°C, Humedad 50-60%, Retención 30-45 días, Secado 0.5 seg.'],
     ['Adhesivo Negro (Baja Humedad)', 29990, 'adhesivos', '/api/images/dubraska%2Fadhesivo-pestañas-alta-retencion-pro-lashistas-insumos-premium.webp', 'Adhesivo negro bajo en vapores. Temp 22-27°C, Humedad 38-50%, Retención 30-60 días. Viscosidad extra ligera.'],
@@ -224,10 +225,10 @@ async function seedData(db) {
     ['Mentoría Estratégica Business', 450000, 'cursos', '/api/images/dubraska%2Fdiseño-cejas-maquillaje-permanente-micropigmentacion-pro-rostro-armonico.webp', 'Mentoría integral para hacer crecer tu negocio de belleza. Estrategia de precios, marketing, branding y escalabilidad.']
   ];
 
-  for (let i = 0; i < products.length; i++) {
-    const [name, price, category, image, description] = products[i];
+  for (let i = 0; i < dk_products.length; i++) {
+    const [name, price, category, image, description] = dk_products[i];
     await db.prepare(
-      'INSERT INTO products (name, price, category, image, description, sort_order) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO dk_products (name, price, category, image, description, sort_order) VALUES (?, ?, ?, ?, ?, ?)'
     ).bind(name, price, category, image, description, i + 1).run();
   }
 
@@ -262,7 +263,7 @@ function serveImage(object, key) {
 // ROUTE HANDLERS
 // ============================================================
 
-// --- /api/products (GET, POST, OPTIONS) ---
+// --- /api/dk_products (GET, POST, OPTIONS) ---
 
 async function productsGet(context) {
   const { request, env } = context;
@@ -276,20 +277,20 @@ async function productsGet(context) {
     const sort = url.searchParams.get('sort') || 'sort_order';
     const ids = url.searchParams.get('ids');
 
-    // Get specific products by IDs (for cart)
+    // Get specific dk_products by IDs (for cart)
     if (ids) {
       const idList = ids.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
       if (idList.length === 0) return jsonResponse([]);
 
       const placeholders = idList.map(() => '?').join(',');
       const result = await db.prepare(
-        `SELECT id, name, price, category, image, description as desc FROM products WHERE id IN (${placeholders})`
+        `SELECT id, name, price, category, image, description as desc FROM dk_products WHERE id IN (${placeholders})`
       ).bind(...idList).all();
 
       return jsonResponse(result.results || []);
     }
 
-    let query = 'SELECT id, name, price, category, image, description as desc FROM products WHERE 1=1';
+    let query = 'SELECT id, name, price, category, image, description as desc FROM dk_products WHERE 1=1';
     const params = [];
 
     if (category && category !== 'all') {
@@ -314,7 +315,7 @@ async function productsGet(context) {
     const result = await db.prepare(query).bind(...params).all();
     return jsonResponse(result.results || []);
   } catch (e) {
-    return errorResponse('Error fetching products: ' + e.message, 500);
+    return errorResponse('Error fetching dk_products: ' + e.message, 500);
   }
 }
 
@@ -335,7 +336,7 @@ async function productsPost(context) {
     }
 
     const result = await db.prepare(
-      'INSERT INTO products (name, price, category, image, description) VALUES (?, ?, ?, ?, ?)'
+      'INSERT INTO dk_products (name, price, category, image, description) VALUES (?, ?, ?, ?, ?)'
     ).bind(name, parseInt(price), category, image || '', description || '').run();
 
     const newId = result.meta?.last_row_id;
@@ -350,7 +351,7 @@ async function productsPost(context) {
   }
 }
 
-// --- /api/products/:id (GET, PUT, DELETE) ---
+// --- /api/dk_products/:id (GET, PUT, DELETE) ---
 
 async function productsIdGet(context) {
   const { request, env, params } = context;
@@ -362,7 +363,7 @@ async function productsIdGet(context) {
     if (isNaN(id)) return errorResponse('Invalid product ID', 400);
 
     const product = await db.prepare(
-      'SELECT id, name, price, category, image, description as desc, sort_order FROM products WHERE id = ?'
+      'SELECT id, name, price, category, image, description as desc, sort_order FROM dk_products WHERE id = ?'
     ).bind(id).first();
 
     if (!product) return errorResponse('Product not found', 404);
@@ -389,7 +390,7 @@ async function productsIdPut(context) {
     const { name, price, category, image, description } = body;
 
     // Check product exists
-    const existing = await db.prepare('SELECT id FROM products WHERE id = ?').bind(id).first();
+    const existing = await db.prepare('SELECT id FROM dk_products WHERE id = ?').bind(id).first();
     if (!existing) return errorResponse('Product not found', 404);
 
     // Build update query dynamically
@@ -407,7 +408,7 @@ async function productsIdPut(context) {
     updates.push("updated_at = datetime('now')");
     values.push(id);
 
-    await db.prepare(`UPDATE products SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
+    await db.prepare(`UPDATE dk_products SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
 
     return jsonResponse({ success: true, message: 'Product updated' });
   } catch (e) {
@@ -427,10 +428,10 @@ async function productsIdDelete(context) {
     const id = parseInt(params.id);
     if (isNaN(id)) return errorResponse('Invalid product ID', 400);
 
-    const existing = await db.prepare('SELECT id FROM products WHERE id = ?').bind(id).first();
+    const existing = await db.prepare('SELECT id FROM dk_products WHERE id = ?').bind(id).first();
     if (!existing) return errorResponse('Product not found', 404);
 
-    await db.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
+    await db.prepare('DELETE FROM dk_products WHERE id = ?').bind(id).run();
 
     return jsonResponse({ success: true, message: 'Product deleted' });
   } catch (e) {
@@ -438,7 +439,7 @@ async function productsIdDelete(context) {
   }
 }
 
-// --- /api/categories (GET, POST, OPTIONS) ---
+// --- /api/dk_categories (GET, POST, OPTIONS) ---
 
 async function categoriesGet(context) {
   const { env } = context;
@@ -446,21 +447,21 @@ async function categoriesGet(context) {
   if (!db) return errorResponse('Database not configured', 500);
 
   try {
-    const categories = await db.prepare(
-      'SELECT slug, name, group_name, sort_order FROM categories ORDER BY group_name, sort_order'
+    const dk_categories = await db.prepare(
+      'SELECT slug, name, group_name, sort_order FROM dk_categories ORDER BY group_name, sort_order'
     ).all();
 
     // Get product counts per category
     const counts = await db.prepare(
-      'SELECT category, COUNT(*) as count FROM products GROUP BY category'
+      'SELECT category, COUNT(*) as count FROM dk_products GROUP BY category'
     ).all();
 
     const countMap = {};
     (counts.results || []).forEach(r => { countMap[r.category] = r.count; });
 
-    // Group categories
+    // Group dk_categories
     const groups = {};
-    (categories.results || []).forEach(cat => {
+    (dk_categories.results || []).forEach(cat => {
       if (!groups[cat.group_name]) groups[cat.group_name] = [];
       groups[cat.group_name].push({
         slug: cat.slug,
@@ -472,7 +473,7 @@ async function categoriesGet(context) {
     });
 
     return jsonResponse({
-      categories: categories.results || [],
+      dk_categories: dk_categories.results || [],
       groups,
       counts: countMap
     });
@@ -496,10 +497,10 @@ async function categoriesPost(context) {
     if (!slug || !name) return errorResponse('Slug and name are required', 400);
 
     const group = group_name || 'Productos';
-    const maxSort = await db.prepare('SELECT MAX(sort_order) as max_sort FROM categories WHERE group_name = ?').bind(group).first();
+    const maxSort = await db.prepare('SELECT MAX(sort_order) as max_sort FROM dk_categories WHERE group_name = ?').bind(group).first();
     const sortOrder = (maxSort?.max_sort || 0) + 1;
 
-    await db.prepare('INSERT INTO categories (slug, name, group_name, sort_order) VALUES (?, ?, ?, ?)')
+    await db.prepare('INSERT INTO dk_categories (slug, name, group_name, sort_order) VALUES (?, ?, ?, ?)')
       .bind(slug, name, group, sortOrder).run();
 
     return jsonResponse({ success: true, message: 'Category created' }, 201);
@@ -508,7 +509,7 @@ async function categoriesPost(context) {
   }
 }
 
-// --- /api/categories/:slug (GET, PUT, DELETE) ---
+// --- /api/dk_categories/:slug (GET, PUT, DELETE) ---
 
 async function categoriesSlugGet(context) {
   const { env, params } = context;
@@ -520,14 +521,14 @@ async function categoriesSlugGet(context) {
     if (!slug) return errorResponse('Category slug required', 400);
 
     const category = await db.prepare(
-      'SELECT slug, name, group_name, sort_order FROM categories WHERE slug = ?'
+      'SELECT slug, name, group_name, sort_order FROM dk_categories WHERE slug = ?'
     ).bind(slug).first();
 
     if (!category) return errorResponse('Category not found', 404);
 
     // Also get product count for this category
     const count = await db.prepare(
-      'SELECT COUNT(*) as cnt FROM products WHERE category = ?'
+      'SELECT COUNT(*) as cnt FROM dk_products WHERE category = ?'
     ).bind(slug).first();
 
     return jsonResponse({
@@ -552,7 +553,7 @@ async function categoriesSlugPut(context) {
     const body = await request.json();
     const { name, group_name } = body;
 
-    const existing = await db.prepare('SELECT slug FROM categories WHERE slug = ?').bind(slug).first();
+    const existing = await db.prepare('SELECT slug FROM dk_categories WHERE slug = ?').bind(slug).first();
     if (!existing) return errorResponse('Category not found', 404);
 
     const updates = [];
@@ -564,7 +565,7 @@ async function categoriesSlugPut(context) {
     if (updates.length === 0) return errorResponse('No fields to update', 400);
 
     values.push(slug);
-    await db.prepare(`UPDATE categories SET ${updates.join(', ')} WHERE slug = ?`).bind(...values).run();
+    await db.prepare(`UPDATE dk_categories SET ${updates.join(', ')} WHERE slug = ?`).bind(...values).run();
 
     return jsonResponse({ success: true, message: 'Category updated' });
   } catch (e) {
@@ -583,13 +584,13 @@ async function categoriesSlugDelete(context) {
   try {
     const slug = params.slug;
 
-    // Check if category has products
-    const count = await db.prepare('SELECT COUNT(*) as cnt FROM products WHERE category = ?').bind(slug).first();
+    // Check if category has dk_products
+    const count = await db.prepare('SELECT COUNT(*) as cnt FROM dk_products WHERE category = ?').bind(slug).first();
     if (count && count.cnt > 0) {
-      return errorResponse(`Cannot delete: category has ${count.cnt} products. Move them first.`, 400);
+      return errorResponse(`Cannot delete: category has ${count.cnt} dk_products. Move them first.`, 400);
     }
 
-    await db.prepare('DELETE FROM categories WHERE slug = ?').bind(slug).run();
+    await db.prepare('DELETE FROM dk_categories WHERE slug = ?').bind(slug).run();
 
     return jsonResponse({ success: true, message: 'Category deleted' });
   } catch (e) {
@@ -706,7 +707,7 @@ async function authLogin(request, db, authType) {
     if (!password) return errorResponse('Password required', 400);
 
     const keyName = authType === 'eventos' ? 'eventos_password' : 'admin_password';
-    const setting = await db.prepare(`SELECT value FROM admin_settings WHERE key = ?`).bind(keyName).first();
+    const setting = await db.prepare(`SELECT value FROM dk_admin_settings WHERE key = ?`).bind(keyName).first();
     if (!setting) return errorResponse('Not configured. Run setup first.', 403);
 
     const valid = await verifyPassword(password, setting.value);
@@ -715,10 +716,10 @@ async function authLogin(request, db, authType) {
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-    await db.prepare('INSERT INTO sessions (token, expires_at) VALUES (?, ?)').bind(token, expiresAt).run();
+    await db.prepare('INSERT INTO dk_sessions (token, expires_at) VALUES (?, ?)').bind(token, expiresAt).run();
 
-    // Clean old expired sessions
-    await db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
+    // Clean old expired dk_sessions
+    await db.prepare("DELETE FROM dk_sessions WHERE expires_at < datetime('now')").run();
 
     return jsonResponse({ success: true, token, type: authType || 'admin' });
   } catch (e) {
@@ -736,7 +737,7 @@ async function authSetup(request, db, authType) {
     }
 
     const keyName = authType === 'eventos' ? 'eventos_password' : 'admin_password';
-    const existing = await db.prepare(`SELECT value FROM admin_settings WHERE key = ?`).bind(keyName).first();
+    const existing = await db.prepare(`SELECT value FROM dk_admin_settings WHERE key = ?`).bind(keyName).first();
     if (existing) {
       return errorResponse('Already configured. Use login instead.', 400);
     }
@@ -750,16 +751,16 @@ async function authSetup(request, db, authType) {
     }
 
     const hash = await hashPassword(password);
-    await db.prepare(`INSERT INTO admin_settings (key, value) VALUES (?, ?)`).bind(keyName, hash).run();
+    await db.prepare(`INSERT INTO dk_admin_settings (key, value) VALUES (?, ?)`).bind(keyName, hash).run();
 
     // Auto-login after setup
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    await db.prepare('INSERT INTO sessions (token, expires_at) VALUES (?, ?)').bind(token, expiresAt).run();
+    await db.prepare('INSERT INTO dk_sessions (token, expires_at) VALUES (?, ?)').bind(token, expiresAt).run();
 
     const msg = authType === 'eventos'
       ? 'Setup complete! Panel de Eventos configurado.'
-      : 'Setup complete! Database initialized with products.';
+      : 'Setup complete! Database initialized with dk_products.';
     return jsonResponse({ success: true, token, type: authType || 'admin', message: msg });
   } catch (e) {
     return errorResponse('Setup error: ' + e.message, 500);
@@ -769,11 +770,11 @@ async function authSetup(request, db, authType) {
 async function authStatus(db, authType) {
   try {
     const keyName = authType === 'eventos' ? 'eventos_password' : 'admin_password';
-    const setting = await db.prepare(`SELECT value FROM admin_settings WHERE key = ?`).bind(keyName).first();
+    const setting = await db.prepare(`SELECT value FROM dk_admin_settings WHERE key = ?`).bind(keyName).first();
 
     if (authType === 'eventos') {
-      const hasEvents = await db.prepare('SELECT COUNT(*) as cnt FROM events').first();
-      const hasRegistrations = await db.prepare('SELECT COUNT(*) as cnt FROM registrations').first();
+      const hasEvents = await db.prepare('SELECT COUNT(*) as cnt FROM dk_events').first();
+      const hasRegistrations = await db.prepare('SELECT COUNT(*) as cnt FROM dk_registrations').first();
       return jsonResponse({
         configured: !!setting,
         hasEvents: hasEvents ? hasEvents.cnt > 0 : false,
@@ -781,7 +782,7 @@ async function authStatus(db, authType) {
       });
     }
 
-    const hasProducts = await db.prepare('SELECT COUNT(*) as cnt FROM products').first();
+    const hasProducts = await db.prepare('SELECT COUNT(*) as cnt FROM dk_products').first();
     return jsonResponse({
       configured: !!setting,
       hasProducts: hasProducts ? hasProducts.cnt > 0 : false,
@@ -804,12 +805,12 @@ async function authChangePassword(request, db, authType) {
     if (newPassword.length < 4) return errorResponse('New password must be at least 4 characters', 400);
 
     const keyName = authType === 'eventos' ? 'eventos_password' : 'admin_password';
-    const setting = await db.prepare(`SELECT value FROM admin_settings WHERE key = ?`).bind(keyName).first();
+    const setting = await db.prepare(`SELECT value FROM dk_admin_settings WHERE key = ?`).bind(keyName).first();
     const valid = await verifyPassword(currentPassword, setting.value);
     if (!valid) return errorResponse('Current password is incorrect', 401);
 
     const hash = await hashPassword(newPassword);
-    await db.prepare(`UPDATE admin_settings SET value = ? WHERE key = ?`).bind(hash, keyName).run();
+    await db.prepare(`UPDATE dk_admin_settings SET value = ? WHERE key = ?`).bind(hash, keyName).run();
 
     return jsonResponse({ success: true, message: 'Password changed successfully' });
   } catch (e) {
@@ -820,7 +821,7 @@ async function authChangePassword(request, db, authType) {
 async function authLogout(request, db) {
   const auth = await validateAuth(request, db);
   if (auth.valid) {
-    await db.prepare('DELETE FROM sessions WHERE token = ?').bind(auth.token).run();
+    await db.prepare('DELETE FROM dk_sessions WHERE token = ?').bind(auth.token).run();
   }
   return jsonResponse({ success: true });
 }
@@ -906,7 +907,7 @@ async function r2ImagesGet(context) {
   }
 }
 
-// --- /api/events (GET, POST) ---
+// --- /api/dk_events (GET, POST) ---
 
 async function eventsGet(context) {
   const { request, env } = context;
@@ -917,7 +918,7 @@ async function eventsGet(context) {
     const url = new URL(request.url);
     const activeOnly = url.searchParams.get('active') === 'true';
 
-    let query = 'SELECT * FROM events';
+    let query = 'SELECT * FROM dk_events';
     if (activeOnly) query += ' WHERE active = 1';
     query += ' ORDER BY event_date DESC, id DESC';
 
@@ -926,13 +927,13 @@ async function eventsGet(context) {
     // Add lead count for each event
     const eventsWithCounts = [];
     for (const ev of (result.results || [])) {
-      const leadCount = await db.prepare('SELECT COUNT(*) as cnt FROM leads WHERE event_id = ?').bind(ev.id).first();
+      const leadCount = await db.prepare('SELECT COUNT(*) as cnt FROM dk_leads WHERE event_id = ?').bind(ev.id).first();
       eventsWithCounts.push({ ...ev, lead_count: leadCount?.cnt || 0 });
     }
 
     return jsonResponse(eventsWithCounts);
   } catch (e) {
-    return errorResponse('Error fetching events: ' + e.message, 500);
+    return errorResponse('Error fetching dk_events: ' + e.message, 500);
   }
 }
 
@@ -954,7 +955,7 @@ async function eventsPost(context) {
     const finalSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 
     const result = await db.prepare(
-      'INSERT INTO events (slug, name, description, location, event_date, active) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO dk_events (slug, name, description, location, event_date, active) VALUES (?, ?, ?, ?, ?, ?)'
     ).bind(finalSlug, name, description || '', location || '', event_date || '', active !== undefined ? (active ? 1 : 0) : 1).run();
 
     const newId = result.meta?.last_row_id;
@@ -968,7 +969,7 @@ async function eventsPost(context) {
   }
 }
 
-// --- /api/events/:id (GET, PUT, DELETE) ---
+// --- /api/dk_events/:id (GET, PUT, DELETE) ---
 
 async function eventsIdGet(context) {
   const { request, env, params } = context;
@@ -979,10 +980,10 @@ async function eventsIdGet(context) {
     const id = parseInt(params.id);
     if (isNaN(id)) return errorResponse('Invalid event ID', 400);
 
-    const event = await db.prepare('SELECT * FROM events WHERE id = ?').bind(id).first();
+    const event = await db.prepare('SELECT * FROM dk_events WHERE id = ?').bind(id).first();
     if (!event) return errorResponse('Event not found', 404);
 
-    const leadCount = await db.prepare('SELECT COUNT(*) as cnt FROM leads WHERE event_id = ?').bind(id).first();
+    const leadCount = await db.prepare('SELECT COUNT(*) as cnt FROM dk_leads WHERE event_id = ?').bind(id).first();
 
     return jsonResponse({ ...event, lead_count: leadCount?.cnt || 0 });
   } catch (e) {
@@ -1004,7 +1005,7 @@ async function eventsIdPut(context) {
 
     const body = await request.json();
 
-    const existing = await db.prepare('SELECT id FROM events WHERE id = ?').bind(id).first();
+    const existing = await db.prepare('SELECT id FROM dk_events WHERE id = ?').bind(id).first();
     if (!existing) return errorResponse('Event not found', 404);
 
     const updates = [];
@@ -1022,7 +1023,7 @@ async function eventsIdPut(context) {
     updates.push("updated_at = datetime('now')");
     values.push(id);
 
-    await db.prepare(`UPDATE events SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
+    await db.prepare(`UPDATE dk_events SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
 
     return jsonResponse({ success: true, message: 'Event updated' });
   } catch (e) {
@@ -1042,20 +1043,20 @@ async function eventsIdDelete(context) {
     const id = parseInt(params.id);
     if (isNaN(id)) return errorResponse('Invalid event ID', 400);
 
-    const existing = await db.prepare('SELECT id FROM events WHERE id = ?').bind(id).first();
+    const existing = await db.prepare('SELECT id FROM dk_events WHERE id = ?').bind(id).first();
     if (!existing) return errorResponse('Event not found', 404);
 
-    // Delete leads for this event first
-    await db.prepare('DELETE FROM leads WHERE event_id = ?').bind(id).run();
-    await db.prepare('DELETE FROM events WHERE id = ?').bind(id).run();
+    // Delete dk_leads for this event first
+    await db.prepare('DELETE FROM dk_leads WHERE event_id = ?').bind(id).run();
+    await db.prepare('DELETE FROM dk_events WHERE id = ?').bind(id).run();
 
-    return jsonResponse({ success: true, message: 'Event and its leads deleted' });
+    return jsonResponse({ success: true, message: 'Event and its dk_leads deleted' });
   } catch (e) {
     return errorResponse('Error deleting event: ' + e.message, 500);
   }
 }
 
-// --- /api/events/slug/:slug (GET - public, for captacion form) ---
+// --- /api/dk_events/slug/:slug (GET - public, for captacion form) ---
 
 async function eventsSlugGet(context) {
   const { env, params } = context;
@@ -1066,7 +1067,7 @@ async function eventsSlugGet(context) {
     const slug = params.slug;
     if (!slug) return errorResponse('Event slug required', 400);
 
-    const event = await db.prepare('SELECT * FROM events WHERE slug = ? AND active = 1').bind(slug).first();
+    const event = await db.prepare('SELECT * FROM dk_events WHERE slug = ? AND active = 1').bind(slug).first();
     if (!event) return errorResponse('Evento no encontrado o no activo', 404);
 
     return jsonResponse(event);
@@ -1075,7 +1076,7 @@ async function eventsSlugGet(context) {
   }
 }
 
-// --- /api/leads (GET, POST) ---
+// --- /api/dk_leads (GET, POST) ---
 
 async function leadsGet(context) {
   const { request, env } = context;
@@ -1089,7 +1090,7 @@ async function leadsGet(context) {
     const url = new URL(request.url);
     const eventId = url.searchParams.get('event_id');
 
-    let query = 'SELECT l.*, e.name as event_name FROM leads l LEFT JOIN events e ON l.event_id = e.id';
+    let query = 'SELECT l.*, e.name as event_name FROM dk_leads l LEFT JOIN dk_events e ON l.event_id = e.id';
     const params = [];
 
     if (eventId) {
@@ -1102,7 +1103,7 @@ async function leadsGet(context) {
     const result = await db.prepare(query).bind(...params).all();
     return jsonResponse(result.results || []);
   } catch (e) {
-    return errorResponse('Error fetching leads: ' + e.message, 500);
+    return errorResponse('Error fetching dk_leads: ' + e.message, 500);
   }
 }
 
@@ -1120,22 +1121,22 @@ async function leadsPost(context) {
     }
 
     // Verify event exists and is active
-    const event = await db.prepare('SELECT id, active FROM events WHERE id = ?').bind(parseInt(event_id)).first();
+    const event = await db.prepare('SELECT id, active FROM dk_events WHERE id = ?').bind(parseInt(event_id)).first();
     if (!event) return errorResponse('Evento no encontrado', 404);
     if (!event.active) return errorResponse('Este evento ya no está activo', 400);
 
     // Check for duplicate (same event + phone or email)
     if (phone || email) {
       const dupQuery = phone
-        ? 'SELECT id FROM leads WHERE event_id = ? AND phone = ?'
-        : 'SELECT id FROM leads WHERE event_id = ? AND email = ?';
+        ? 'SELECT id FROM dk_leads WHERE event_id = ? AND phone = ?'
+        : 'SELECT id FROM dk_leads WHERE event_id = ? AND email = ?';
       const dupVal = phone || email;
       const dup = await db.prepare(dupQuery).bind(parseInt(event_id), dupVal).first();
       if (dup) return errorResponse('Ya estás registrado en este evento', 400);
     }
 
     const result = await db.prepare(
-      'INSERT INTO leads (event_id, name, phone, email, notes) VALUES (?, ?, ?, ?, ?)'
+      'INSERT INTO dk_leads (event_id, name, phone, email, notes) VALUES (?, ?, ?, ?, ?)'
     ).bind(parseInt(event_id), name.trim(), (phone || '').trim(), (email || '').trim().toLowerCase(), (notes || '').trim()).run();
 
     const newId = result.meta?.last_row_id;
@@ -1146,7 +1147,7 @@ async function leadsPost(context) {
   }
 }
 
-// --- /api/leads/:id (DELETE) ---
+// --- /api/dk_leads/:id (DELETE) ---
 
 async function leadsIdDelete(context) {
   const { request, env, params } = context;
@@ -1160,7 +1161,7 @@ async function leadsIdDelete(context) {
     const id = parseInt(params.id);
     if (isNaN(id)) return errorResponse('Invalid lead ID', 400);
 
-    await db.prepare('DELETE FROM leads WHERE id = ?').bind(id).run();
+    await db.prepare('DELETE FROM dk_leads WHERE id = ?').bind(id).run();
 
     return jsonResponse({ success: true, message: 'Lead deleted' });
   } catch (e) {
@@ -1168,7 +1169,7 @@ async function leadsIdDelete(context) {
   }
 }
 
-// --- /api/leads/export (GET - CSV export) ---
+// --- /api/dk_leads/export (GET - CSV export) ---
 
 async function leadsExportGet(context) {
   const { request, env } = context;
@@ -1184,19 +1185,19 @@ async function leadsExportGet(context) {
 
     if (!eventId) return errorResponse('event_id is required', 400);
 
-    const event = await db.prepare('SELECT name FROM events WHERE id = ?').bind(parseInt(eventId)).first();
+    const event = await db.prepare('SELECT name FROM dk_events WHERE id = ?').bind(parseInt(eventId)).first();
     if (!event) return errorResponse('Event not found', 404);
 
     const result = await db.prepare(
-      'SELECT l.name, l.phone, l.email, l.notes, l.created_at FROM leads l WHERE l.event_id = ? ORDER BY l.created_at DESC'
+      'SELECT l.name, l.phone, l.email, l.notes, l.created_at FROM dk_leads l WHERE l.event_id = ? ORDER BY l.created_at DESC'
     ).bind(parseInt(eventId)).all();
 
-    const leads = result.results || [];
+    const dk_leads = result.results || [];
 
     // Build CSV
     const BOM = '\uFEFF';
     let csv = BOM + 'Nombre,Telefono,Email,Notas,Fecha Registro\n';
-    for (const l of leads) {
+    for (const l of dk_leads) {
       const escape = (v) => `"${(v || '').replace(/"/g, '""')}"`;
       csv += `${escape(l.name)},${escape(l.phone)},${escape(l.email)},${escape(l.notes)},${escape(l.created_at)}\n`;
     }
@@ -1216,7 +1217,7 @@ async function leadsExportGet(context) {
   }
 }
 
-// --- /api/registrations (GET, POST) ---
+// --- /api/dk_registrations (GET, POST) ---
 
 async function registrationsGet(context) {
   const { request, env } = context;
@@ -1230,7 +1231,7 @@ async function registrationsGet(context) {
     const url = new URL(request.url);
     const search = url.searchParams.get('search');
 
-    let query = 'SELECT * FROM registrations';
+    let query = 'SELECT * FROM dk_registrations';
     const params = [];
 
     if (search) {
@@ -1243,7 +1244,7 @@ async function registrationsGet(context) {
     const result = await db.prepare(query).bind(...params).all();
     return jsonResponse(result.results || []);
   } catch (e) {
-    return errorResponse('Error fetching registrations: ' + e.message, 500);
+    return errorResponse('Error fetching dk_registrations: ' + e.message, 500);
   }
 }
 
@@ -1263,15 +1264,15 @@ async function registrationsPost(context) {
     // Check for duplicate (same phone or email)
     if (phone || email) {
       const dupQuery = phone
-        ? 'SELECT id FROM registrations WHERE phone = ?'
-        : 'SELECT id FROM registrations WHERE email = ?';
+        ? 'SELECT id FROM dk_registrations WHERE phone = ?'
+        : 'SELECT id FROM dk_registrations WHERE email = ?';
       const dupVal = phone || email;
       const dup = await db.prepare(dupQuery).bind(dupVal).first();
       if (dup) return errorResponse('Ya estás registrado/a', 400);
     }
 
     const result = await db.prepare(
-      'INSERT INTO registrations (name, phone, email, source, notes) VALUES (?, ?, ?, ?, ?)'
+      'INSERT INTO dk_registrations (name, phone, email, source, notes) VALUES (?, ?, ?, ?, ?)'
     ).bind(name.trim(), (phone || '').trim(), (email || '').trim().toLowerCase(), (source || 'qr').trim(), (notes || '').trim()).run();
 
     const newId = result.meta?.last_row_id;
@@ -1282,7 +1283,7 @@ async function registrationsPost(context) {
   }
 }
 
-// --- /api/registrations/:id (DELETE) ---
+// --- /api/dk_registrations/:id (DELETE) ---
 
 async function registrationsIdDelete(context) {
   const { request, env, params } = context;
@@ -1296,7 +1297,7 @@ async function registrationsIdDelete(context) {
     const id = parseInt(params.id);
     if (isNaN(id)) return errorResponse('Invalid registration ID', 400);
 
-    await db.prepare('DELETE FROM registrations WHERE id = ?').bind(id).run();
+    await db.prepare('DELETE FROM dk_registrations WHERE id = ?').bind(id).run();
 
     return jsonResponse({ success: true, message: 'Registration deleted' });
   } catch (e) {
@@ -1304,7 +1305,7 @@ async function registrationsIdDelete(context) {
   }
 }
 
-// --- /api/registrations/export (GET - CSV export) ---
+// --- /api/dk_registrations/export (GET - CSV export) ---
 
 async function registrationsExportGet(context) {
   const { request, env } = context;
@@ -1316,7 +1317,7 @@ async function registrationsExportGet(context) {
 
   try {
     const result = await db.prepare(
-      'SELECT name, phone, email, source, notes, created_at FROM registrations ORDER BY created_at DESC'
+      'SELECT name, phone, email, source, notes, created_at FROM dk_registrations ORDER BY created_at DESC'
     ).all();
 
     const regs = result.results || [];
@@ -1356,7 +1357,7 @@ async function registrationsExportGet(context) {
 const routes = [
   // Parameterized routes first (more specific)
   {
-    pattern: /^\/api\/events\/slug\/([^/]+)$/,
+    pattern: /^\/api\/dk_events\/slug\/([^/]+)$/,
     paramNames: ['slug'],
     handlers: {
       GET: eventsSlugGet,
@@ -1364,7 +1365,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/registrations\/export$/,
+    pattern: /^\/api\/dk_registrations\/export$/,
     paramNames: [],
     handlers: {
       GET: registrationsExportGet,
@@ -1372,7 +1373,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/leads\/export$/,
+    pattern: /^\/api\/dk_leads\/export$/,
     paramNames: [],
     handlers: {
       GET: leadsExportGet,
@@ -1380,7 +1381,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/events\/([^/]+)$/,
+    pattern: /^\/api\/dk_events\/([^/]+)$/,
     paramNames: ['id'],
     handlers: {
       GET: eventsIdGet,
@@ -1390,7 +1391,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/registrations\/([^/]+)$/,
+    pattern: /^\/api\/dk_registrations\/([^/]+)$/,
     paramNames: ['id'],
     handlers: {
       DELETE: registrationsIdDelete,
@@ -1398,7 +1399,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/leads\/([^/]+)$/,
+    pattern: /^\/api\/dk_leads\/([^/]+)$/,
     paramNames: ['id'],
     handlers: {
       DELETE: leadsIdDelete,
@@ -1406,7 +1407,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/products\/([^/]+)$/,
+    pattern: /^\/api\/dk_products\/([^/]+)$/,
     paramNames: ['id'],
     handlers: {
       GET: productsIdGet,
@@ -1416,7 +1417,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/categories\/([^/]+)$/,
+    pattern: /^\/api\/dk_categories\/([^/]+)$/,
     paramNames: ['slug'],
     handlers: {
       GET: categoriesSlugGet,
@@ -1436,7 +1437,7 @@ const routes = [
   },
   // Exact-match routes
   {
-    pattern: /^\/api\/registrations$/,
+    pattern: /^\/api\/dk_registrations$/,
     paramNames: [],
     handlers: {
       GET: registrationsGet,
@@ -1445,7 +1446,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/events$/,
+    pattern: /^\/api\/dk_events$/,
     paramNames: [],
     handlers: {
       GET: eventsGet,
@@ -1454,7 +1455,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/leads$/,
+    pattern: /^\/api\/dk_leads$/,
     paramNames: [],
     handlers: {
       GET: leadsGet,
@@ -1463,7 +1464,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/products$/,
+    pattern: /^\/api\/dk_products$/,
     paramNames: [],
     handlers: {
       GET: productsGet,
@@ -1472,7 +1473,7 @@ const routes = [
     }
   },
   {
-    pattern: /^\/api\/categories$/,
+    pattern: /^\/api\/dk_categories$/,
     paramNames: [],
     handlers: {
       GET: categoriesGet,
