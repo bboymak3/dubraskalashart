@@ -74,7 +74,10 @@
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb-custom" style="margin-top:68px;">
-  <div class="container">
+  <div class="container d-flex align-items-center">
+    <button onclick="history.back()" style="background:none;border:none;padding:0;margin-right:8px;cursor:pointer;display:flex;align-items:center;color:var(--color-primary);font-size:1.2rem;" aria-label="Volver">
+      <i class="ri-arrow-left-line"></i>
+    </button>
     <a href="index.html">Inicio</a> <i class="ri-arrow-right-s-line"></i> <a href="tienda.html">Tienda</a> <i class="ri-arrow-right-s-line"></i> <strong id="breadcrumb-product">Producto</strong>
   </div>
 </div>
@@ -468,14 +471,14 @@ async function renderProduct() {
   const related = PRODUCTS.filter(r => r.category === p.category && r.id !== p.id).slice(0, 3);
   document.getElementById('relatedProducts').innerHTML = related.map(r => `
     <div class="col-md-4">
-      <div class="product-card">
+      <div class="product-card" onclick="window.location.href='producto.html?id=${r.id}'" style="cursor:pointer;">
         <div class="img-wrapper">
           <img src="${getPrimaryImage(r)}" alt="${r.name}" class="product-img">
         </div>
         <div class="product-body">
           <h5 class="product-name">${r.name}</h5>
           <div class="product-price">$${r.price.toLocaleString('es-CL')}</div>
-          <div class="product-actions">
+          <div class="product-actions" onclick="event.stopPropagation();">
             <button class="btn-add-cart" onclick="Cart.addItem(${r.id})"><i class="ri-shopping-cart-line me-1"></i>Agregar</button>
             <a href="producto.html?id=${r.id}" class="btn-details"><i class="ri-eye-line"></i> Ver Detalles</a>
           </div>
