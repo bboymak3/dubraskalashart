@@ -567,7 +567,7 @@ h1, h2, h3, h4, h5, h6 {
 .product-card .img-wrapper {
   overflow: hidden;
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   background: #fafafa;
 }
 .product-card .product-img {

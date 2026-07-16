@@ -405,7 +405,7 @@ const Shop = {
     const isProductCategory = this.currentCategory === 'all' || productSlugs.includes(this.currentCategory);
 
     grid.innerHTML = products.map(p => `
-      <div class="col-sm-6 col-lg-4">
+      <div class="col-6 col-lg-4">
         <div class="product-card">
           <div class="img-wrapper">
             <img src="${getPrimaryImage(p)}" alt="${p.name}" class="product-img">
